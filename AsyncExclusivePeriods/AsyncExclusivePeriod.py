@@ -7,7 +7,7 @@ class AsyncExclusivePeriod:
     obj_has_async_exclusive_periods = {}
 
     @classmethod
-    def create_obj_periods(cls, obj, *period_names: str):
+    async def create_obj_periods(cls, obj, *period_names: str):
         '''
         Create periods for some object.
 
@@ -18,7 +18,7 @@ class AsyncExclusivePeriod:
         cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
         for period_name in period_names:
             cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncExclusivePeriod(period_name)
-        cls.set_obj_period(obj, period_names[0])
+        await cls.set_obj_period(obj, period_names[0])
 
     @classmethod
     def _get_obj_period(cls, obj, period_name: str):
@@ -47,13 +47,15 @@ class AsyncExclusivePeriod:
             return cls.obj_has_async_exclusive_periods[obj]
 
     @classmethod
-    def set_obj_period(cls, obj, period_name: str):
+    async def set_obj_period(cls, obj, period_name: str):
+        _ensure_state_tasks = []
         for name, period in cls._get_obj_periods(obj).items():
             # 目标
             if name == period_name:
-                period._ensure_state(True)
+                _ensure_state_tasks.append(asyncio.create_task(period._ensure_state(True)))
             else:
-                period._ensure_state(False)
+                _ensure_state_tasks.append(asyncio.create_task(period._ensure_state(False)))
+        [await task for task in _ensure_state_tasks]
 
     @classmethod
     async def wait_inside_period(cls, obj, period_name: str):
