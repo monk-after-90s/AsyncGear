@@ -14,6 +14,8 @@ class TestAsyncExclusivePeriod(AsyncTestCase):
     async def test_add_period(self):
         await AsyncExclusivePeriod.add_period(self, 'test4')
         self.assertEqual(AsyncExclusivePeriod.get_obj_present_period(self), 'test1')
+        obj_period_names = AsyncExclusivePeriod.get_obj_period_names(self)
+        self.assertEqual({'test1', 'test2', 'test3', 'test4'}, set(obj_period_names))
 
     def test_get_obj_period(self):
         self.assertEqual(AsyncExclusivePeriod._get_obj_period(self, 'test1')._name, 'test1')
