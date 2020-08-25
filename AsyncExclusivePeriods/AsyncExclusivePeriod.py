@@ -7,10 +7,18 @@ class AsyncExclusivePeriod:
     obj_has_async_exclusive_periods = {}
 
     @classmethod
-    def create_obj_period(cls, obj, *period_names: str):
+    def create_obj_periods(cls, obj, *period_names: str):
+        '''
+        Create periods for some object.
+
+        :param obj:
+        :param period_names: Period names.The first one would be the initial period.
+        :return:
+        '''
         cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
         for period_name in period_names:
             cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncExclusivePeriod(period_name)
+        cls.set_obj_period(obj, period_names[0])
 
     @classmethod
     def _get_obj_period(cls, obj, period_name: str):
