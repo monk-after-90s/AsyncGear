@@ -101,18 +101,16 @@ class AsyncExclusivePeriod:
         if state:
             if not self._true_event.is_set():
                 self._true_event.set()
-                await asyncio.sleep(0)
             if self._false_event.is_set():
                 self._false_event.clear()
-                await asyncio.sleep(0)
+            await asyncio.sleep(0)
 
         else:
             if self._true_event.is_set():
                 self._true_event.clear()
-                await asyncio.sleep(0)
             if not self._false_event.is_set():
                 self._false_event.set()
-                await asyncio.sleep(0)
+            await asyncio.sleep(0)
 
     def _get_state(self):
         return self._true_event.is_set() and not self._false_event.is_set()
