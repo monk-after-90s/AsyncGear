@@ -72,7 +72,7 @@ class TestAsyncExclusivePeriod(AsyncTestCase):
 
     async def test_wait_exit_period(self):
         _far_wait_exit_period_helps_test_wait_exit_period_task = asyncio.create_task(
-            self._far_wait_exit_period_helps_test_wait_exit_period(self, 'test1'))
+            self._far_wait_exit_period_helps_test_wait_exit_period(self, 'test2'))
         time1 = asyncio.get_running_loop().time()
         asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test2'))
         await AsyncExclusivePeriod.wait_exit_period(self, 'test1')
