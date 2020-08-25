@@ -93,32 +93,32 @@ class AsyncExclusivePeriod:
         await period._wait_change_into_false()
 
     def __init__(self, name):
-        self._enter_event = asyncio.Event()
-        self._exit_event = asyncio.Event()
+        self._true_event = asyncio.Event()
+        self._false_event = asyncio.Event()
         self._name = name
 
     async def _ensure_state(self, state: bool):
         if state:
-            if not self._enter_event.is_set():
-                self._enter_event.set()
+            if not self._true_event.is_set():
+                self._true_event.set()
                 await asyncio.sleep(0)
-            if self._exit_event.is_set():
-                self._exit_event.clear()
+            if self._false_event.is_set():
+                self._false_event.clear()
         else:
-            if self._enter_event.is_set():
-                self._enter_event.clear()
-            if not self._exit_event.is_set():
-                self._exit_event.set()
+            if self._true_event.is_set():
+                self._true_event.clear()
+            if not self._false_event.is_set():
+                self._false_event.set()
                 await asyncio.sleep(0)
 
     def _get_state(self):
-        return self._enter_event.is_set() and not self._exit_event.is_set()
+        return self._true_event.is_set() and not self._false_event.is_set()
 
     async def _wait_true(self):
-        await self._enter_event.wait()
+        await self._true_event.wait()
 
     async def _wait_false(self):
-        await self._exit_event.wait()
+        await self._false_event.wait()
 
     async def _wait_change_into_true(self):
         if self._get_state():
