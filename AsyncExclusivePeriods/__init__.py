@@ -1,3 +1,3 @@
-from AsyncExclusivePeriods.AsyncExclusivePeriods import AsyncExclusivePeriod
+from .AsyncExclusivePeriod import AsyncExclusivePeriod
 
 __all__ = ['AsyncExclusivePeriod']
