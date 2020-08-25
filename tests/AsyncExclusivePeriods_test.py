@@ -23,7 +23,7 @@ class TestAsyncExclusivePeriod(AsyncTestCase):
         self.assertEqual({'test1', 'test2', 'test3'}, set(obj_period_names))
 
     async def test_set_get_obj_present_period(self):
-        await AsyncExclusivePeriod.set_obj_period(self, 'test2')
+        AsyncExclusivePeriod.set_obj_period(self, 'test2')
         self.assertEqual('test2', AsyncExclusivePeriod.get_obj_present_period(self))
 
     async def test_wait_inside_period(self):
@@ -38,7 +38,7 @@ class TestAsyncExclusivePeriod(AsyncTestCase):
 
     async def _wait_then_set_period(self, obj, wait_seconds: float, period_name: str):
         await asyncio.sleep(wait_seconds)
-        await AsyncExclusivePeriod.set_obj_period(obj, period_name)
+        AsyncExclusivePeriod.set_obj_period(obj, period_name)
 
     async def test_wait_outside_period(self):
         time1 = asyncio.get_running_loop().time()
