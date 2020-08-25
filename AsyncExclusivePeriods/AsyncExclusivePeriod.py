@@ -9,16 +9,31 @@ class AsyncExclusivePeriod:
     @classmethod
     async def create_obj_periods(cls, obj, *period_names: str):
         '''
-        Create periods for some object.
+        Initially create periods for some object.
 
         :param obj:
         :param period_names: Period names.The first one would be the initial period.
         :return:
         '''
-        cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
-        for period_name in period_names:
-            cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncExclusivePeriod(period_name)
-        await cls.set_obj_period(obj, period_names[0])
+        if obj not in cls.obj_has_async_exclusive_periods.keys():
+            cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
+            for period_name in period_names:
+                cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncExclusivePeriod(period_name)
+            await cls.set_obj_period(obj, period_names[0])
+        else:
+            raise KeyError(f'{repr(obj)} has already got some periods! Please use add_period.')
+
+    @classmethod
+    async def add_period(cls, obj, new_period_name: str):
+        '''
+        Dynamically add a period for some object.
+
+        :return:
+        '''
+        if obj not in cls.obj_has_async_exclusive_periods.keys():
+            await cls.create_obj_periods(obj, new_period_name)
+        else:
+            cls.obj_has_async_exclusive_periods[obj][new_period_name] = AsyncExclusivePeriod(new_period_name)
 
     @classmethod
     def _get_obj_period(cls, obj, period_name: str):
