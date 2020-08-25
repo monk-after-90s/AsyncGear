@@ -21,6 +21,12 @@ class AsyncExclusivePeriod:
             raise KeyError(f'You did not create {period_name} for {repr(obj)}!')
 
     @classmethod
+    def get_obj_present_period(cls, obj):
+        for name, period in cls._get_obj_periods(obj).items():
+            if period._get_state():
+                return name
+
+    @classmethod
     def get_obj_period_names(cls, obj):
         if obj in cls.obj_has_async_exclusive_periods.keys():
             return cls.obj_has_async_exclusive_periods[obj].keys()
