@@ -8,11 +8,11 @@ from AsyncExclusivePeriods import AsyncExclusivePeriod
 
 class TestAsyncExclusivePeriod(AsyncTestCase):
     async def setUp(self) -> None:
-        await AsyncExclusivePeriod.create_obj_periods(self, 'test1', 'test2', 'test3')
+        AsyncExclusivePeriod.create_obj_periods(self, 'test1', 'test2', 'test3')
         self.assertEqual(AsyncExclusivePeriod.get_obj_present_period(self), 'test1')
 
     async def test_add_period(self):
-        await AsyncExclusivePeriod.add_period(self, 'test4')
+        AsyncExclusivePeriod.add_period(self, 'test4')
         self.assertEqual(AsyncExclusivePeriod.get_obj_present_period(self), 'test1')
         obj_period_names = AsyncExclusivePeriod.get_obj_period_names(self)
         self.assertEqual({'test1', 'test2', 'test3', 'test4'}, set(obj_period_names))
