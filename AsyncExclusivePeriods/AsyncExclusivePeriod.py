@@ -1,7 +1,8 @@
 import asyncio
 
-
 # todo 以后可以想想实现子集、并集、交集等，最小元素考虑是互斥时期
+from loguru import logger
+
 
 class AsyncExclusivePeriod:
     obj_has_async_exclusive_periods = {}
@@ -69,6 +70,7 @@ class AsyncExclusivePeriod:
                 period._ensure_state(True)
             else:
                 period._ensure_state(False)
+            logger.debug(f'set {repr(obj)} to period {period_name}.')
 
     @classmethod
     async def wait_inside_period(cls, obj, period_name: str):
