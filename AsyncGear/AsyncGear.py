@@ -4,7 +4,7 @@ import asyncio
 from loguru import logger
 
 
-class AsyncExclusivePeriod:
+class AsyncGear:
     obj_has_async_exclusive_periods = {}
 
     @classmethod
@@ -19,7 +19,7 @@ class AsyncExclusivePeriod:
         if obj not in cls.obj_has_async_exclusive_periods.keys():
             cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
             for period_name in period_names:
-                cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncExclusivePeriod(period_name)
+                cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncGear(period_name)
             cls.set_obj_period(obj, period_names[0])
         else:
             raise KeyError(f'{repr(obj)} has already got some periods! Please use add_period.')
@@ -34,7 +34,7 @@ class AsyncExclusivePeriod:
         if obj not in cls.obj_has_async_exclusive_periods.keys():
             cls.create_obj_periods(obj, new_period_name)
         else:
-            cls.obj_has_async_exclusive_periods[obj][new_period_name] = AsyncExclusivePeriod(new_period_name)
+            cls.obj_has_async_exclusive_periods[obj][new_period_name] = AsyncGear(new_period_name)
 
     @classmethod
     def _get_obj_period(cls, obj, period_name: str):
@@ -55,7 +55,7 @@ class AsyncExclusivePeriod:
         if obj in cls.obj_has_async_exclusive_periods.keys():
             return cls.obj_has_async_exclusive_periods[obj].keys()
         else:
-            raise KeyError(f'You did not create any AsyncExclusivePeriod for {repr(obj)}!')
+            raise KeyError(f'You did not create any AsyncGear for {repr(obj)}!')
 
     @classmethod
     def _get_obj_periods(cls, obj):
