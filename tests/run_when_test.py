@@ -1,8 +1,8 @@
 import asyncio
 
-# import uvloop
-#
-# asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+import uvloop
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 from asyncUnittest import AsyncTestCase
 import asyncUnittest  # todo 升级
 from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_out, AsyncGear
@@ -318,7 +318,6 @@ class TestRunWhen(AsyncTestCase):
 
         @run_when_inside(self, 'awaken', 'abandon')
         async def inside_test():
-            print('hello')
             await asyncio.create_task(asyncio.sleep(0.1))
             nonlocal var1
             var1 += 1
@@ -326,6 +325,32 @@ class TestRunWhen(AsyncTestCase):
         await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var1, 3)
+        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        ## non_block
+        var2 = 0
+
+        @run_when_inside(self, 'awaken', 'non_block')
+        async def inside_test():
+            await asyncio.create_task(asyncio.sleep(0.1))
+            nonlocal var2
+            var2 += 1
+
+        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(asyncio.sleep(1))
+        self.assertGreaterThan(var2, 100)
+        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        ## queue fixme
+        var3 = 0
+
+        @run_when_inside(self, 'awaken', 'queue')
+        async def inside_test():
+            await asyncio.create_task(asyncio.sleep(0.1))
+            nonlocal var3
+            var3 += 1
+
+        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(asyncio.sleep(0.35))
+        self.assertEqual(var3, 3)
         await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
 
 
