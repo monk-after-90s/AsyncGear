@@ -57,16 +57,56 @@ def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon')
 
 
 def run_when_enter(obj, period_name: str, queue_blocking='abandon'):
+    '''
+    Decorator, run the decorated when obj enters the period.
+
+    :param obj:
+    :param period_name:
+    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
+                             waits the previous one completing then run the new activated; abandon means abandon the new
+                             activated if the previous one has not completes yet.
+    :return:
+    '''
     return _run_when(obj, 'enter', period_name, queue_blocking)
 
 
 def run_when_exit(obj, period_name: str, queue_blocking='abandon'):
+    '''
+    Decorator, run the decorated when obj exits the period.
+
+    :param obj:
+    :param period_name:
+    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
+                             waits the previous one completing then run the new activated; abandon means abandon the new
+                             activated if the previous one has not completes yet.
+    :return:
+    '''
     return _run_when(obj, 'exit', period_name, queue_blocking)
 
 
 def run_when_inside(obj, period_name: str, queue_blocking='abandon'):
+    '''
+    Decorator, run the decorated when obj is inside the period.
+
+    :param obj:
+    :param period_name:
+    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
+                             waits the previous one completing then run the new activated; abandon means abandon the new
+                             activated if the previous one has not completes yet.
+    :return:
+    '''
     return _run_when(obj, 'inside', period_name, queue_blocking)
 
 
 def run_when_out(obj, period_name: str, queue_blocking='abandon'):
+    '''
+    Decorator, run the decorated when obj is outside the period.
+
+    :param obj:
+    :param period_name:
+    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
+                             waits the previous one completing then run the new activated; abandon means abandon the new
+                             activated if the previous one has not completes yet.
+    :return:
+    '''
     return _run_when(obj, 'outside', period_name, queue_blocking)
