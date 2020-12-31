@@ -26,18 +26,18 @@ def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon')
                     # Get q item to run decorated
                     async def queue2run_coroutine():
                         while True:
-                            await q.get()
+                            await asyncio.create_task(q.get())
                             await asyncio.create_task(decorated())
                             q.task_done()
 
                     asyncio.create_task(queue2run_coroutine())
             while True:
                 # wait the exact time
-                await getattr(AsyncGear,
+                await asyncio.create_task(getattr(AsyncGear,
                               {'enter': 'wait_enter_period',
                                'exit': 'wait_exit_period',
                                'inside': 'wait_inside_period',
-                               'outside': 'wait_outside_period'}[time_method])(obj, period_name)
+                               'outside': 'wait_outside_period'}[time_method])(obj, period_name))
                 if not asyncio.iscoroutinefunction(decorated):
                     decorated()
                 else:

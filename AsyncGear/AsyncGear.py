@@ -85,22 +85,22 @@ class AsyncGear:
     @classmethod
     async def wait_inside_period(cls, obj, period_name: str):
         period: cls = cls._get_obj_period(obj, period_name)
-        await period._wait_true()
+        await asyncio.create_task(period._wait_true())
 
     @classmethod
     async def wait_outside_period(cls, obj, period_name: str):
         period: cls = cls._get_obj_period(obj, period_name)
-        await period._wait_false()
+        await asyncio.create_task(period._wait_false())
 
     @classmethod
     async def wait_enter_period(cls, obj, period_name: str):
         period: cls = cls._get_obj_period(obj, period_name)
-        await period._wait_change_into_true()
+        await asyncio.create_task(period._wait_change_into_true())
 
     @classmethod
     async def wait_exit_period(cls, obj, period_name: str):
         period: cls = cls._get_obj_period(obj, period_name)
-        await period._wait_change_into_false()
+        await asyncio.create_task(period._wait_change_into_false())
 
     def __init__(self, name):
         self._true_event = asyncio.Event()
@@ -124,21 +124,21 @@ class AsyncGear:
         return self._true_event.is_set() and not self._false_event.is_set()
 
     async def _wait_true(self):
-        await self._true_event.wait()
+        await asyncio.create_task(self._true_event.wait())
 
     async def _wait_false(self):
-        await self._false_event.wait()
+        await asyncio.create_task(self._false_event.wait())
 
     async def _wait_change_into_true(self):
         if self._get_state():
-            await self._wait_false()
-            await self._wait_true()
+            await asyncio.create_task(self._wait_false())
+            await asyncio.create_task(self._wait_true())
         else:
-            await self._wait_true()
+            await asyncio.create_task(self._wait_true())
 
     async def _wait_change_into_false(self):
         if self._get_state():
-            await self._wait_false()
+            await asyncio.create_task(self._wait_false())
         else:
-            await self._wait_true()
-            await self._wait_false()
+            await asyncio.create_task(self._wait_true())
+            await asyncio.create_task(self._wait_false())
