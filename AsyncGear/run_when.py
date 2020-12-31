@@ -62,8 +62,8 @@ def run_when_enter(obj, period_name: str, queue_blocking='abandon'):
 
     :param obj:
     :param period_name:
-    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
-                             waits the previous one completing then run the new activated; abandon means abandon the new
+    :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
+                             waits the previous one completing then run the new activated; 'abandon' means abandon the new
                              activated if the previous one has not completes yet.
     :return:
     '''
@@ -76,8 +76,8 @@ def run_when_exit(obj, period_name: str, queue_blocking='abandon'):
 
     :param obj:
     :param period_name:
-    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
-                             waits the previous one completing then run the new activated; abandon means abandon the new
+    :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
+                             waits the previous one completing then run the new activated; 'abandon' means abandon the new
                              activated if the previous one has not completes yet.
     :return:
     '''
@@ -90,8 +90,8 @@ def run_when_inside(obj, period_name: str, queue_blocking='abandon'):
 
     :param obj:
     :param period_name:
-    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
-                             waits the previous one completing then run the new activated; abandon means abandon the new
+    :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
+                             waits the previous one completing then run the new activated; 'abandon' means abandon the new
                              activated if the previous one has not completes yet.
     :return:
     '''
@@ -104,8 +104,8 @@ def run_when_out(obj, period_name: str, queue_blocking='abandon'):
 
     :param obj:
     :param period_name:
-    :param queue_blocking: When the decorated is activated too frequently, non_block means run immediately anyway; queue means
-                             waits the previous one completing then run the new activated; abandon means abandon the new
+    :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
+                             waits the previous one completing then run the new activated; 'abandon' means abandon the new
                              activated if the previous one has not completes yet.
     :return:
     '''
