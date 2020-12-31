@@ -21,9 +21,9 @@ class TestAsyncGear(AsyncTestCase):
         async def worker(name: str):
             '''工人等self的test2时期，就工作，工作完再等'''
             while True:
-                AsyncGear.set_obj_period(name, 'waiting')
+                AsyncGear._set_obj_period(name, 'waiting')
                 await AsyncGear.wait_enter_period(self, 'test2')
-                AsyncGear.set_obj_period(name, 'working')
+                AsyncGear._set_obj_period(name, 'working')
                 q.put_nowait({"time": asyncio.get_running_loop().time(), 'msg': 'start to work'})
                 await asyncio.sleep(1)  # simulate work
                 q.put_nowait({"time": asyncio.get_running_loop().time(), 'msg': 'end working'})  # 测试间隔1s
@@ -42,7 +42,7 @@ class TestAsyncGear(AsyncTestCase):
                 wait_worker2_exit_working_task = asyncio.create_task(
                     AsyncGear.wait_exit_period('worker2', 'working'))
                 await asyncio.gather(wait_worker1_exit_working_task, wait_worker2_exit_working_task)
-                AsyncGear.set_obj_period(self, 'test1')
+                AsyncGear._set_obj_period(self, 'test1')
 
         wait_worker_accomplish_working_then_set_period_test1_task = \
             asyncio.create_task(wait_worker_accomplish_working_then_set_period_test1())
@@ -63,7 +63,7 @@ class TestAsyncGear(AsyncTestCase):
             while True:
                 await AsyncGear.wait_outside_period(self, 'test2')
                 await asyncio.sleep(1)
-                AsyncGear.set_obj_period(self, 'test2')  # 测试休息1s
+                AsyncGear._set_obj_period(self, 'test2')  # 测试休息1s
 
         set_test2_task = asyncio.create_task(set_test2())
 
@@ -91,6 +91,7 @@ class TestAsyncGear(AsyncTestCase):
                 if work_end_time:
                     self.assertLessThan(new_msg['time'] - work_start_time, 1)
         [await task for task in tasks]
+
     async def test_add_period(self):
         AsyncGear.add_period(self, 'test4')
         self.assertEqual(AsyncGear.get_obj_present_period(self), 'test1')
@@ -104,8 +105,8 @@ class TestAsyncGear(AsyncTestCase):
         obj_period_names = AsyncGear.get_obj_period_names(self)
         self.assertEqual({'test1', 'test2', 'test3'}, set(obj_period_names))
 
-    async def test_set_get_obj_present_period(self):
-        AsyncGear.set_obj_period(self, 'test2')
+    async def test_set_get_obj_present_period(self):  # todo 增加测试异步版set
+        AsyncGear._set_obj_period(self, 'test2')
         self.assertEqual('test2', AsyncGear.get_obj_present_period(self))
 
     async def test_wait_inside_period(self):
@@ -120,7 +121,7 @@ class TestAsyncGear(AsyncTestCase):
 
     async def _wait_then_set_period(self, obj, wait_seconds: float, period_name: str):
         await asyncio.sleep(wait_seconds)
-        AsyncGear.set_obj_period(obj, period_name)
+        AsyncGear._set_obj_period(obj, period_name)
 
     async def test_wait_outside_period(self):
         time1 = asyncio.get_running_loop().time()

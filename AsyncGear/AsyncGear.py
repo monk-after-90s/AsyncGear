@@ -20,7 +20,7 @@ class AsyncGear:
             cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
             for period_name in period_names:
                 cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncGear(period_name)
-            cls.set_obj_period(obj, period_names[0])
+            cls._set_obj_period(obj, period_names[0])
         else:
             raise KeyError(f'{repr(obj)} has already got some periods! Please use add_period.')
 
@@ -63,14 +63,24 @@ class AsyncGear:
             return cls.obj_has_async_exclusive_periods[obj]
 
     @classmethod
-    def set_obj_period(cls, obj, period_name: str):
-        for name, period in cls._get_obj_periods(obj).items():
-            # 目标
-            if name == period_name:
-                period._ensure_state(True)
-            else:
-                period._ensure_state(False)
-            logger.debug(f'set {repr(obj)} to period {period_name}.')
+    def _set_obj_period(cls, obj, period_name: str):
+        if cls.get_obj_present_period(obj) != period_name:
+            for name, period in cls._get_obj_periods(obj).items():
+                # 目标
+                if name == period_name:
+                    period._ensure_state(True)
+                else:
+                    period._ensure_state(False)
+                logger.debug(f'set {repr(obj)} to period {period_name}.')
+
+    @classmethod
+    async def set_obj_period(cls, obj, period_name: str):
+        if cls.get_obj_present_period(obj) != period_name:
+            await asyncio.create_task(AsyncGear.wait_outside_period(obj, period_name))
+        else:
+            await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
+        cls._set_obj_period(obj, period_name)
+        await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
 
     @classmethod
     async def wait_inside_period(cls, obj, period_name: str):
