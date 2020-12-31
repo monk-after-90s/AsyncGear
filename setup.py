@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="AsyncGear",
-    version="1.13",
+    version="1.2",
     author="Antas",
     author_email="",
     description="Think about such scene, some object has different state or periods, well we call periods.Among these periods, there can't be any two that could be both the present period. The object could be in only one period. For example, a human can only be one period of baby, youth, adult, old man and dead.",
@@ -18,5 +18,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 )
