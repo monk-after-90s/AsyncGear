@@ -4,6 +4,9 @@ from asyncUnittest import AsyncTestCase
 import asyncUnittest
 
 from AsyncGear import AsyncGear
+import uvloop
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 class TestAsyncGear(AsyncTestCase):
@@ -21,10 +24,10 @@ class TestAsyncGear(AsyncTestCase):
         async def worker(name: str):
             '''工人等self的test2时期，就工作，工作完再等'''
             while True:
-                AsyncGear._set_obj_period(name, 'waiting')
+                await asyncio.create_task(AsyncGear.set_obj_period(name, 'waiting'))
                 await asyncio.create_task(AsyncGear.wait_enter_period(self, 'test2'))
-                AsyncGear._set_obj_period(name, 'working')
                 q.put_nowait({"time": asyncio.get_running_loop().time(), 'msg': 'start to work'})
+                await asyncio.create_task(AsyncGear.set_obj_period(name, 'working'))
                 await asyncio.create_task(asyncio.sleep(1))  # simulate work
                 q.put_nowait({"time": asyncio.get_running_loop().time(), 'msg': 'end working'})  # 测试间隔1s
                 # 测试在0.5s之后是test1时期
@@ -41,8 +44,9 @@ class TestAsyncGear(AsyncTestCase):
                     AsyncGear.wait_exit_period('worker1', 'working'))
                 wait_worker2_exit_working_task = asyncio.create_task(
                     AsyncGear.wait_exit_period('worker2', 'working'))
-                await asyncio.ensure_future(asyncio.gather(wait_worker1_exit_working_task, wait_worker2_exit_working_task))
-                AsyncGear._set_obj_period(self, 'test1')
+                await asyncio.ensure_future(
+                    asyncio.gather(wait_worker1_exit_working_task, wait_worker2_exit_working_task))
+                await asyncio.create_task(AsyncGear.set_obj_period(self, 'test1'))
 
         wait_worker_accomplish_working_then_set_period_test1_task = \
             asyncio.create_task(wait_worker_accomplish_working_then_set_period_test1())
@@ -63,12 +67,13 @@ class TestAsyncGear(AsyncTestCase):
             while True:
                 await asyncio.create_task(AsyncGear.wait_outside_period(self, 'test2'))
                 await asyncio.create_task(asyncio.sleep(1))
-                AsyncGear._set_obj_period(self, 'test2')  # 测试休息1s
+                await asyncio.create_task(AsyncGear.set_obj_period(self, 'test2'))  # 测试休息1s
 
         set_test2_task = asyncio.create_task(set_test2())
 
         work_start_time = None
         work_end_time = None
+        work_end_time_count = 0
         tasks = []
         init_time = asyncio.get_running_loop().time()
         while asyncio.get_running_loop().time() - init_time <= 5:
@@ -87,9 +92,15 @@ class TestAsyncGear(AsyncTestCase):
                     self.assertEqual('test1', AsyncGear.get_obj_present_period(self))
 
                 tasks.append(asyncio.create_task(test_in_test1_period_after_end_working()))
+
+                # 俩工人第一次完工，复位
+                work_end_time_count += 1
+                if work_end_time_count % 2 == 0:
+                    work_start_time = work_end_time = None
             elif new_msg['msg'] == 'In test2, the workers should be working.':
-                if work_end_time:
+                if work_start_time:
                     self.assertLessThan(new_msg['time'] - work_start_time, 1)
+            q.task_done()
         [await task for task in tasks]
 
     async def test_add_period(self):
@@ -106,7 +117,7 @@ class TestAsyncGear(AsyncTestCase):
         self.assertEqual({'test1', 'test2', 'test3'}, set(obj_period_names))
 
     async def test_set_get_obj_present_period(self):
-        AsyncGear._set_obj_period(self, 'test2')
+        await asyncio.create_task(AsyncGear.set_obj_period(self, 'test2'))
         self.assertEqual('test2', AsyncGear.get_obj_present_period(self))
 
         await asyncio.create_task(AsyncGear.set_obj_period(self, 'test3'))
@@ -124,7 +135,7 @@ class TestAsyncGear(AsyncTestCase):
 
     async def _wait_then_set_period(self, obj, wait_seconds: float, period_name: str):
         await asyncio.create_task(asyncio.sleep(wait_seconds))
-        AsyncGear._set_obj_period(obj, period_name)
+        await asyncio.create_task(AsyncGear.set_obj_period(obj, period_name))
 
     async def test_wait_outside_period(self):
         time1 = asyncio.get_running_loop().time()
@@ -147,7 +158,7 @@ class TestAsyncGear(AsyncTestCase):
         time2 = asyncio.get_running_loop().time()
         self.assertGreaterThan(time2 - time1, 0.2)
         asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test1'))
-        await asyncio.create_task(_far_wait_enter_period_helps_test_wait_enter_period_task)
+        await _far_wait_enter_period_helps_test_wait_enter_period_task
 
     async def _far_wait_enter_period_helps_test_wait_enter_period(self, obj, period_name: str):
         time1 = asyncio.get_running_loop().time()
@@ -165,7 +176,7 @@ class TestAsyncGear(AsyncTestCase):
         time2 = asyncio.get_running_loop().time()
         self.assertGreaterThan(time2 - time1, 0.2)
         asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test1'))
-        await asyncio.create_task(_far_wait_exit_period_helps_test_wait_exit_period_task)
+        await _far_wait_exit_period_helps_test_wait_exit_period_task
 
     async def _far_wait_exit_period_helps_test_wait_exit_period(self, obj, period_name: str):
         time1 = asyncio.get_running_loop().time()
