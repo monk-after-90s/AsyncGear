@@ -105,9 +105,12 @@ class TestAsyncGear(AsyncTestCase):
         obj_period_names = AsyncGear.get_obj_period_names(self)
         self.assertEqual({'test1', 'test2', 'test3'}, set(obj_period_names))
 
-    async def test_set_get_obj_present_period(self):  # todo 增加测试异步版set
+    async def test_set_get_obj_present_period(self):
         AsyncGear._set_obj_period(self, 'test2')
         self.assertEqual('test2', AsyncGear.get_obj_present_period(self))
+
+        await asyncio.create_task(AsyncGear.set_obj_period(self, 'test3'))
+        self.assertEqual('test3', AsyncGear.get_obj_present_period(self))
 
     async def test_wait_inside_period(self):
         time1 = asyncio.get_running_loop().time()
