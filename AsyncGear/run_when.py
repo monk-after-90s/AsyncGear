@@ -98,7 +98,7 @@ def run_when_inside(obj, period_name: str, queue_blocking='abandon'):
     return _run_when(obj, 'inside', period_name, queue_blocking)
 
 
-def run_when_out(obj, period_name: str, queue_blocking='abandon'):
+def run_when_outside(obj, period_name: str, queue_blocking='abandon'):
     '''
     Decorator, run the decorated when obj is outside the period.
 

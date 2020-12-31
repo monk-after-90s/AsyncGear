@@ -5,7 +5,7 @@ import uvloop
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 from asyncUnittest import AsyncTestCase
 import asyncUnittest  # todo 升级
-from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_out, AsyncGear
+from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_outside, AsyncGear
 
 
 class TestRunWhen(AsyncTestCase):
@@ -302,11 +302,11 @@ class TestRunWhen(AsyncTestCase):
         var = False
 
         @run_when_inside(self, 'awaken')
-        def enter_test():
+        def inside_test():
             nonlocal var
             var = True
 
-        enter_test()
+        inside_test()
         self.assertIs(var, True)
 
         var = False
@@ -339,7 +339,7 @@ class TestRunWhen(AsyncTestCase):
         await asyncio.create_task(asyncio.sleep(1))
         self.assertGreaterThan(var2, 100)
         await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        ## queue fixme
+        ## queue
         var3 = 0
 
         @run_when_inside(self, 'awaken', 'queue')
