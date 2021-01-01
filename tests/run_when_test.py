@@ -1,17 +1,20 @@
+from asyncUnittest import AsyncTestCase
+import asyncUnittest
+from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_outside
+
 import asyncio
 
 import uvloop
 
+from AsyncGear import Gear
+
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-from asyncUnittest import AsyncTestCase
-import asyncUnittest
-from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_outside, AsyncGear
 
 
 class TestRunWhen(AsyncTestCase):
     async def setUp(self) -> None:
-        AsyncGear.create_obj_periods(self, 'sleep', 'awaken')
-        self.assertEqual('sleep', AsyncGear.get_obj_present_period(self))
+        Gear(self).add_periods('sleep', 'awaken')
+        self.assertEqual('sleep', Gear(self).get_present_period())
 
     async def test_multi_callback(self):
         var1 = False
@@ -34,7 +37,7 @@ class TestRunWhen(AsyncTestCase):
             else:
                 var1 = True
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         self.assertIs(var1, False)
 
     async def test_run_when_enter(self):
@@ -51,11 +54,15 @@ class TestRunWhen(AsyncTestCase):
 
         var = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        self.assertEqual('awaken', AsyncGear.get_obj_present_period(self))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+
+        # self.assertEqual('awaken', AsyncGear.get_obj_present_period(self))
+        self.assertEqual('awaken', Gear(self).get_present_period())
         self.assertIs(var, True)
         var = False
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
 
         # test 3 situations for coroutine functions
 
@@ -75,16 +82,21 @@ class TestRunWhen(AsyncTestCase):
         var1 = False
 
         ## abandon
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var1, True)
         var1 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, ))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var1, True)
         var1 = False
@@ -101,26 +113,26 @@ class TestRunWhen(AsyncTestCase):
             else:
                 var2 = True
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var2, True)
         var2 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var2, False)
         var2 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var2, True)
         var2 = False
@@ -143,10 +155,11 @@ class TestRunWhen(AsyncTestCase):
             fs.remove(f)
 
         time = asyncio.get_running_loop().time()
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         [await asyncio.ensure_future(f) for f in fs]
         self.assertEqual(0.1 * 2, round(asyncio.get_running_loop().time() - time, 1))
@@ -154,12 +167,12 @@ class TestRunWhen(AsyncTestCase):
         time = asyncio.get_running_loop().time()
         var3 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.25))
         [await asyncio.ensure_future(f) for f in fs]
         self.assertEqual(round(0.1 * 3, 1), round(asyncio.get_running_loop().time() - time, 1))
@@ -181,12 +194,15 @@ class TestRunWhen(AsyncTestCase):
 
         var = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        self.assertEqual('awaken', AsyncGear.get_obj_present_period(self))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+
+        # self.assertEqual('awaken', AsyncGear.get_obj_present_period(self))
+        self.assertEqual('awaken', Gear(self).get_present_period())
         self.assertIs(var, True)
         var = False
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        # await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
 
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         # test 3 situations for coroutine functions
 
         var1 = False
@@ -205,16 +221,17 @@ class TestRunWhen(AsyncTestCase):
         var1 = False
 
         ## abandon
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var1, True)
         var1 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var1, True)
         var1 = False
@@ -231,26 +248,28 @@ class TestRunWhen(AsyncTestCase):
             else:
                 var2 = True
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var2, True)
         var2 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var2, False)
         var2 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         self.assertIs(var2, True)
         var2 = False
@@ -273,10 +292,11 @@ class TestRunWhen(AsyncTestCase):
             fs.remove(f)
 
         time = asyncio.get_running_loop().time()
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
         [await f for f in fs]
         self.assertEqual(0.1 * 2, round(asyncio.get_running_loop().time() - time, 1))
@@ -284,12 +304,12 @@ class TestRunWhen(AsyncTestCase):
         time = asyncio.get_running_loop().time()
         var3 = False
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.25))
         [await f for f in fs]
         self.assertEqual(round(0.1 * 3, 1), round(asyncio.get_running_loop().time() - time, 1))
@@ -322,10 +342,11 @@ class TestRunWhen(AsyncTestCase):
             nonlocal var1
             var1 += 1
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var1, 3)
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         ## non_block
         var2 = 0
 
@@ -335,10 +356,11 @@ class TestRunWhen(AsyncTestCase):
             nonlocal var2
             var2 += 1
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(asyncio.sleep(1))
         self.assertGreaterThan(var2, 100)
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         ## queue
         var3 = 0
 
@@ -348,10 +370,10 @@ class TestRunWhen(AsyncTestCase):
             nonlocal var3
             var3 += 1
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var3, 3)
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
 
     async def test_run_when_outside(self):
         # normal function, simple test
@@ -378,10 +400,11 @@ class TestRunWhen(AsyncTestCase):
             nonlocal var1
             var1 += 1
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var1, 3)
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+
+        await asyncio.create_task(Gear(self).set_period('sleep'))
         ## non_block
         var2 = 0
 
@@ -391,10 +414,11 @@ class TestRunWhen(AsyncTestCase):
             nonlocal var2
             var2 += 1
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(asyncio.sleep(1))
         self.assertGreaterThan(var2, 100)
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
+
         ## queue
         var3 = 0
 
@@ -404,10 +428,10 @@ class TestRunWhen(AsyncTestCase):
             nonlocal var3
             var3 += 1
 
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'awaken'))
+        await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var3, 3)
-        await asyncio.create_task(AsyncGear.set_obj_period(self, 'sleep'))
+        await asyncio.create_task(Gear(self).set_period('sleep'))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
-from AsyncGear import AsyncGear
 import asyncio
+from .AsyncGearInterface import Gear
 
 
 def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon'):
@@ -33,11 +33,11 @@ def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon')
                     asyncio.create_task(queue2run_coroutine())
             while True:
                 # wait the exact time
-                await asyncio.create_task(getattr(AsyncGear,
+                await asyncio.create_task(getattr(Gear(obj),
                                                   {'enter': 'wait_enter_period',
                                                    'exit': 'wait_exit_period',
                                                    'inside': 'wait_inside_period',
-                                                   'outside': 'wait_outside_period'}[time_method])(obj, period_name))
+                                                   'outside': 'wait_outside_period'}[time_method])(period_name))
                 if not asyncio.iscoroutinefunction(decorated):
                     decorated()
                 else:
