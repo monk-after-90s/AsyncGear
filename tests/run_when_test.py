@@ -334,7 +334,7 @@ class TestRunWhen(AsyncTestCase):
         ## abandon
         var1 = 0
 
-        @run_when_inside(self, 'awaken', 'abandon')
+        @run_when_inside(self, 'awaken')
         async def inside_test():
             await asyncio.create_task(asyncio.sleep(0.1))
             nonlocal var1
@@ -344,33 +344,6 @@ class TestRunWhen(AsyncTestCase):
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var1, 3)
 
-        await asyncio.create_task(Gear(self).set_period('sleep'))
-        ## non_block
-        var2 = 0
-
-        @run_when_inside(self, 'awaken', 'non_block')
-        async def inside_test():
-            await asyncio.create_task(asyncio.sleep(0.1))
-            nonlocal var2
-            var2 += 1
-
-        await asyncio.create_task(Gear(self).set_period('awaken'))
-        await asyncio.create_task(asyncio.sleep(1))
-        self.assertGreaterThan(var2, 100)
-
-        await asyncio.create_task(Gear(self).set_period('sleep'))
-        ## queue
-        var3 = 0
-
-        @run_when_inside(self, 'awaken', 'queue')
-        async def inside_test():
-            await asyncio.create_task(asyncio.sleep(0.1))
-            nonlocal var3
-            var3 += 1
-
-        await asyncio.create_task(Gear(self).set_period('awaken'))
-        await asyncio.create_task(asyncio.sleep(0.35))
-        self.assertEqual(var3, 3)
         await asyncio.create_task(Gear(self).set_period('sleep'))
 
     async def test_run_when_outside(self):
@@ -392,7 +365,7 @@ class TestRunWhen(AsyncTestCase):
         ## abandon
         var1 = 0
 
-        @run_when_outside(self, 'sleep', 'abandon')
+        @run_when_outside(self, 'sleep')
         async def outside_test():
             await asyncio.create_task(asyncio.sleep(0.1))
             nonlocal var1
@@ -402,33 +375,6 @@ class TestRunWhen(AsyncTestCase):
         await asyncio.create_task(asyncio.sleep(0.35))
         self.assertEqual(var1, 3)
 
-        await asyncio.create_task(Gear(self).set_period('sleep'))
-        ## non_block
-        var2 = 0
-
-        @run_when_outside(self, 'sleep', 'non_block')
-        async def outside_test():
-            await asyncio.create_task(asyncio.sleep(0.1))
-            nonlocal var2
-            var2 += 1
-
-        await asyncio.create_task(Gear(self).set_period('awaken'))
-        await asyncio.create_task(asyncio.sleep(1))
-        self.assertGreaterThan(var2, 100)
-        await asyncio.create_task(Gear(self).set_period('sleep'))
-
-        ## queue
-        var3 = 0
-
-        @run_when_outside(self, 'sleep', 'queue')
-        async def outside_test():
-            await asyncio.create_task(asyncio.sleep(0.1))
-            nonlocal var3
-            var3 += 1
-
-        await asyncio.create_task(Gear(self).set_period('awaken'))
-        await asyncio.create_task(asyncio.sleep(0.35))
-        self.assertEqual(var3, 3)
         await asyncio.create_task(Gear(self).set_period('sleep'))
 
 
