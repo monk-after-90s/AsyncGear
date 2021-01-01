@@ -3,7 +3,7 @@ import asyncio
 from asyncUnittest import AsyncTestCase
 import asyncUnittest
 
-from AsyncGear import AsyncGear
+from AsyncGear.AsyncGear import AsyncGear
 import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
