@@ -105,6 +105,7 @@ class AsyncGear:
     def __init__(self, name):
         self._true_event = asyncio.Event()
         self._false_event = asyncio.Event()
+        self._ensure_state(False)
         self._name = name
 
     def _ensure_state(self, state: bool):
