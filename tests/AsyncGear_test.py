@@ -1,12 +1,12 @@
 import asyncio
 
+import uvloop
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 from asyncUnittest import AsyncTestCase
 import asyncUnittest
 
 from AsyncGear.AsyncGear import AsyncGear
-import uvloop
-
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 class TestAsyncGear(AsyncTestCase):
