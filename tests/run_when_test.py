@@ -4,7 +4,7 @@ import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 from asyncUnittest import AsyncTestCase
-import asyncUnittest  # todo 升级
+import asyncUnittest
 from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_outside, AsyncGear
 
 
