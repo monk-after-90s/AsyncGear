@@ -1,14 +1,14 @@
-from asyncUnittest import AsyncTestCase
-import asyncUnittest
-from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_outside
-
 import asyncio
 
 import uvloop
 
-from AsyncGear import Gear
-
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+from asyncUnittest import AsyncTestCase
+import asyncUnittest
+from AsyncGear import run_when_inside, run_when_exit, run_when_enter, run_when_outside
+
+from AsyncGear import Gear
 
 
 class TestRunWhen(AsyncTestCase):
@@ -248,8 +248,6 @@ class TestRunWhen(AsyncTestCase):
             else:
                 var2 = True
 
-        await asyncio.create_task(Gear(self).set_period('awaken'))
-        await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(Gear(self).set_period('awaken'))
         await asyncio.create_task(Gear(self).set_period('sleep'))
         await asyncio.create_task(asyncio.sleep(0.15))
