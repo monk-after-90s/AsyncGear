@@ -1,3 +1,6 @@
+'''
+There is no guarantee of success every time
+'''
 import asyncio
 
 import uvloop

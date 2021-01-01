@@ -1,5 +1,5 @@
 '''
-Success all the times can't be Guaranteed.
+There is no guarantee of success every time
 '''
 import asyncio
 
