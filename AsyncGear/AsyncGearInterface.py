@@ -5,8 +5,6 @@ import asyncio
 
 from .AsyncGear import AsyncGear
 
-from .run_when import run_when_inside, run_when_exit, run_when_enter, run_when_outside
-
 
 class Gear:
 
@@ -43,14 +41,14 @@ class Gear:
     async def wait_exit_period(self, period_name: str):
         return await asyncio.create_task(AsyncGear.wait_exit_period(self.obj, period_name))
 
-    def when_enter(self, period_name: str, queue_blocking='abandon'):
-        return run_when_enter(self.obj, period_name, queue_blocking)
-
-    def when_exit(self, period_name: str, queue_blocking='abandon'):
-        return run_when_exit(self.obj, period_name, queue_blocking)
-
-    def when_inside(self, period_name: str, queue_blocking='abandon'):
-        return run_when_inside(self.obj, period_name, queue_blocking)
-
-    def when_outside(self, period_name: str, queue_blocking='abandon'):
-        return run_when_outside(self.obj, period_name, queue_blocking)
+    # def when_enter(self, period_name: str, queue_blocking='abandon'):
+    #     return run_when_enter(self.obj, period_name, queue_blocking)
+    #
+    # def when_exit(self, period_name: str, queue_blocking='abandon'):
+    #     return run_when_exit(self.obj, period_name, queue_blocking)
+    #
+    # def when_inside(self, period_name: str, queue_blocking='abandon'):
+    #     return run_when_inside(self.obj, period_name, queue_blocking)
+    #
+    # def when_outside(self, period_name: str, queue_blocking='abandon'):
+    #     return run_when_outside(self.obj, period_name, queue_blocking)
