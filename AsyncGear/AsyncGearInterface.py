@@ -3,7 +3,7 @@ Transfer an object to its gear, as an interface.
 '''
 import asyncio
 
-from AsyncGear import AsyncGear
+from .AsyncGear import AsyncGear
 
 
 # from abc import ABCMeta, abstractmethod
