@@ -121,6 +121,56 @@ class TestGear(AsyncTestCase):
 
         await asyncio.create_task(Gear(self).set_period('test3'))
         self.assertEqual('test3', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test1'))
+
+        # slot_num test
+        ## idempotent test
+        await asyncio.create_task(Gear(self).set_period('test1', slot_num=2))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test1', slot_num=2))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        ## halfway test
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test2', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test1'))
+
+        ## interrput test
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=2))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=2))
+        self.assertEqual('test2', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test1'))
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test2', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test1'))
+
+        ## cross set test
+        await asyncio.create_task(Gear(self).set_period('test3', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test3', slot_num=2))
+        self.assertEqual('test1', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test3', slot_num=2))
+        self.assertEqual('test3', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test3', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test2', slot_num=3))
+        self.assertEqual('test2', Gear(self).get_present_period())
+        await asyncio.create_task(Gear(self).set_period('test1'))
 
     async def test_wait_inside_period(self):
         time1 = asyncio.get_running_loop().time()
