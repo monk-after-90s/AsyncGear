@@ -19,7 +19,7 @@ class AsyncGear:
         if obj not in cls.obj_has_async_exclusive_periods.keys():
             cls.obj_has_async_exclusive_periods[obj] = cls.obj_has_async_exclusive_periods.get(obj, {})
             for period_name in period_names:
-                cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncGear(period_name)
+                cls.obj_has_async_exclusive_periods[obj][period_name] = AsyncGear(period_name, obj)
             cls._set_obj_period(obj, period_names[0])
         else:
             raise KeyError(f'{repr(obj)} has already got some periods! Please use add_period.')
@@ -34,7 +34,7 @@ class AsyncGear:
         if obj not in cls.obj_has_async_exclusive_periods.keys():
             cls.create_obj_periods(obj, new_period_name)
         else:
-            cls.obj_has_async_exclusive_periods[obj][new_period_name] = AsyncGear(new_period_name)
+            cls.obj_has_async_exclusive_periods[obj][new_period_name] = AsyncGear(new_period_name, obj)
 
     @classmethod
     def _get_obj_period(cls, obj, period_name: str):
@@ -102,11 +102,23 @@ class AsyncGear:
         period: cls = cls._get_obj_period(obj, period_name)
         await asyncio.create_task(period._wait_change_into_false())
 
-    def __init__(self, name):
+    def __init__(self, name, obj):
         self._true_event = asyncio.Event()
         self._false_event = asyncio.Event()
         self._ensure_state(False)
         self._name = name
+        self.obj = obj
+
+        self.slots_num_for_true = 1
+        self._filled_slots_num = 0
+
+    @property
+    def filled_slots_num(self):
+        return self._filled_slots_num
+
+    @filled_slots_num.setter
+    def filled_slots_num(self, x: int):
+        self._filled_slots_num = x
 
     def _ensure_state(self, state: bool):
         if state:
