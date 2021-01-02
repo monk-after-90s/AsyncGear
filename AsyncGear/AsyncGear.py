@@ -90,16 +90,11 @@ class AsyncGear:
         p.slots_num_for_true = slot_num
         p.filled_slots_num += 1
 
-        if cls.get_obj_present_period(obj) != period_name:
-            await asyncio.create_task(AsyncGear.wait_outside_period(obj, period_name))
-        else:
-            await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
-
-        cls._set_obj_period(obj, period_name)
-        if cls.get_obj_present_period(obj) != period_name:
-            await asyncio.create_task(AsyncGear.wait_outside_period(obj, period_name))
-        else:
-            await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
+        # cls._set_obj_period(obj, period_name)
+        # if cls.get_obj_present_period(obj) != period_name:
+        #     await asyncio.create_task(AsyncGear.wait_outside_period(obj, period_name))
+        # else:
+        #     await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
         # await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
 
     @classmethod
@@ -153,6 +148,7 @@ class AsyncGear:
         # 触发
         if self.filled_slots_num >= self.slots_num_for_true:
             type(self)._set_obj_period(self.obj, self._name)
+            self.filled_slots_num = 0
 
     def _ensure_state(self, state: bool):
         if state:

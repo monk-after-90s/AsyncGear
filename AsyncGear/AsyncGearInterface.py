@@ -7,6 +7,7 @@ from .AsyncGear import AsyncGear
 
 
 class Gear:
+    # last_set_period = {}
 
     def __init__(self, obj):
         self.obj = obj
@@ -37,7 +38,19 @@ class Gear:
                 if among these times set_period run a different slot_num is given. Then the procedure is refreshed.
         :return:
         '''
-        return await asyncio.create_task(AsyncGear.set_obj_period(self.obj, period_name, slot_num))
+
+        if self.get_present_period() != period_name:
+            await asyncio.create_task(self.wait_outside_period(period_name))
+        else:
+            await asyncio.create_task(self.wait_inside_period(period_name))
+        try:
+            return await asyncio.create_task(AsyncGear.set_obj_period(self.obj, period_name, slot_num))
+        finally:
+            # self.last_set_period[self.obj] = period_name
+            if self.get_present_period() != period_name:
+                await asyncio.create_task(self.wait_outside_period(period_name))
+            else:
+                await asyncio.create_task(self.wait_inside_period(period_name))
 
     async def wait_inside_period(self, period_name: str):
         return await asyncio.create_task(AsyncGear.wait_inside_period(self.obj, period_name))
