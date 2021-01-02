@@ -74,13 +74,33 @@ class AsyncGear:
                 logger.debug(f'set {repr(obj)} to period {period_name}.')
 
     @classmethod
-    async def set_obj_period(cls, obj, period_name: str):
+    async def set_obj_period(cls, obj, period_name: str, slot_num: int = 1):
+        '''
+        Set obj to period period_name.
+
+        :param obj:
+        :param period_name:
+        :param slot_num: Attention! Do not use it if you do not understand it!
+                slot_num means that only after slot_num times AsyncGear.set_obj_period(obj,period_name,slot_num) run
+                (present time included), the period of obj gear could really be set to period_name, which is interrupted
+                if among these times set_obj_period run a different slot_num is given. Then the procedure is refreshed.
+        :return:
+        '''
+        p = cls._get_obj_period(obj, period_name)
+        p.slots_num_for_true = slot_num
+        p.filled_slots_num += 1
+
         if cls.get_obj_present_period(obj) != period_name:
             await asyncio.create_task(AsyncGear.wait_outside_period(obj, period_name))
         else:
             await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
+
         cls._set_obj_period(obj, period_name)
-        await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
+        if cls.get_obj_present_period(obj) != period_name:
+            await asyncio.create_task(AsyncGear.wait_outside_period(obj, period_name))
+        else:
+            await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
+        # await asyncio.create_task(AsyncGear.wait_inside_period(obj, period_name))
 
     @classmethod
     async def wait_inside_period(cls, obj, period_name: str):
@@ -109,8 +129,19 @@ class AsyncGear:
         self._name = name
         self.obj = obj
 
-        self.slots_num_for_true = 1
+        self._slots_num_for_true = 1
         self._filled_slots_num = 0
+
+    @property
+    def slots_num_for_true(self):
+        return self._slots_num_for_true
+
+    @slots_num_for_true.setter
+    def slots_num_for_true(self, x: int):
+        if self._slots_num_for_true != x:  # 更新
+            self.filled_slots_num = 0
+
+        self._slots_num_for_true = x
 
     @property
     def filled_slots_num(self):
@@ -119,6 +150,9 @@ class AsyncGear:
     @filled_slots_num.setter
     def filled_slots_num(self, x: int):
         self._filled_slots_num = x
+        # 触发
+        if self.filled_slots_num >= self.slots_num_for_true:
+            type(self)._set_obj_period(self.obj, self._name)
 
     def _ensure_state(self, state: bool):
         if state:
