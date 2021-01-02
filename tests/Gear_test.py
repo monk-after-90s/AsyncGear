@@ -6,7 +6,7 @@ import asyncio
 import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-from AsyncGear import Gear
+from AsyncGear import Gear, run_when_enter
 
 import asyncUnittest
 from asyncUnittest import AsyncTestCase
@@ -123,7 +123,21 @@ class TestGear(AsyncTestCase):
         self.assertEqual('test3', Gear(self).get_present_period())
         await asyncio.create_task(Gear(self).set_period('test1'))
 
+        # idempotent test
+        var = True
+
+        @run_when_enter(self, 'test2')
+        def enter_test():
+            nonlocal var
+            var = not var
+
         # slot_num test
+        await asyncio.create_task(Gear(self).set_period('test2'))
+        self.assertEqual(False, var)
+        await asyncio.create_task(Gear(self).set_period('test2'))
+        self.assertEqual(False, var)
+        await asyncio.create_task(Gear(self).set_period('test1'))
+
         ## idempotent test
         await asyncio.create_task(Gear(self).set_period('test1', slot_num=2))
         self.assertEqual('test1', Gear(self).get_present_period())
