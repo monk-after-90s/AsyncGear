@@ -26,8 +26,18 @@ class Gear:
     def get_period_names(self):
         return AsyncGear.get_obj_period_names(self.obj)
 
-    async def set_period(self, period_name: str):
-        return await asyncio.create_task(AsyncGear.set_obj_period(self.obj, period_name))
+    async def set_period(self, period_name: str, slot_num: int = 1):
+        '''
+        Set obj to period period_name.
+
+        :param period_name:
+        :param slot_num: Attention! Do not use it if you do not understand it!
+                slot_num means that only after slot_num times Gear(obj).set_period(period_name,slot_num) run
+                (present time included), the period of Gear(obj) could really be set to period_name, which is interrupted
+                if among these times set_period run a different slot_num is given. Then the procedure is refreshed.
+        :return:
+        '''
+        return await asyncio.create_task(AsyncGear.set_obj_period(self.obj, period_name, slot_num))
 
     async def wait_inside_period(self, period_name: str):
         return await asyncio.create_task(AsyncGear.wait_inside_period(self.obj, period_name))
