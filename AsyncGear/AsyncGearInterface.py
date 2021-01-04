@@ -5,12 +5,43 @@ import asyncio
 
 from .AsyncGear import AsyncGear
 
+from .instance_run_when import call_backs
+
 
 class Gear:
     # last_set_period = {}
 
     def __init__(self, obj):
         self.obj = obj
+
+    def _set_intance_gear_callbacks(self, period_names):
+        def _set_intance_gear_callbacks(attr, obj, period_names):
+            from .run_when import run_when_enter
+            periods2del = []
+            for period_name in period_names:  # 新时期被加入，找到可以启动的回调等待
+                if period_name in call_backs[attr].keys():  # 启动等待
+                    periods2del.append(period_name)
+                    for time_method in call_backs[attr][period_name].keys():
+                        if time_method == 'enter':
+                            if asyncio.iscoroutinefunction(attr):
+                                @run_when_enter(obj, period_name, call_backs[attr][period_name][time_method])
+                                async def wrapper():
+                                    await asyncio.create_task(attr(obj))
+                            else:
+                                @run_when_enter(obj, period_name, call_backs[attr][period_name][time_method])
+                                def wrapper():
+                                    # print(f'attr:{repr(attr)}')
+                                    attr(obj)
+
+            # 删除该period记录
+            [call_backs[attr].pop(period) for period in periods2del]
+            # 如果attr没有还要关联的period，则删除该attr的记录
+            if not bool(call_backs[attr]):
+                call_backs.pop(attr)
+
+        for attr in type(self.obj).__dict__.values():  # 遍历绑定对象的类属性，找到实例回调方法对应的类函数
+            if attr in call_backs:
+                _set_intance_gear_callbacks(attr, self.obj, period_names)
 
     def add_periods(self, *new_period_names: str):
         '''
@@ -20,6 +51,7 @@ class Gear:
         '''
         for new_period_name in new_period_names:
             AsyncGear.add_period(self.obj, new_period_name)
+        self._set_intance_gear_callbacks(new_period_names)
 
     def get_present_period(self):
         return AsyncGear.get_obj_present_period(self.obj)
