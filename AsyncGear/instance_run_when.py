@@ -20,7 +20,7 @@
 call_backs = {}
 
 
-def when_ins_enter(period_name: str, queue_blocking='abandon'):
+def _when_ins(time_method: str, period_name: str, queue_blocking='abandon'):
     '''
     remenber to instantiate in a coroutine
 
@@ -52,7 +52,23 @@ def when_ins_enter(period_name: str, queue_blocking='abandon'):
 
         call_backs[f] = call_backs.get(f, {})
         call_backs[f][period_name] = call_backs[f].get(period_name, {})
-        call_backs[f][period_name]['enter'] = queue_blocking
+        call_backs[f][period_name][time_method] = queue_blocking
         return f
 
     return decorator
+
+
+def when_ins_enter(period_name: str, queue_blocking='abandon'):
+    return _when_ins('enter', period_name, queue_blocking)
+
+
+def when_ins_exit(period_name: str, queue_blocking='abandon'):
+    return _when_ins('exit', period_name, queue_blocking)
+
+
+def when_ins_inside(period_name: str, ):
+    return _when_ins('inside', period_name, 'abandon')
+
+
+def when_ins_outside(period_name: str, ):
+    return _when_ins('outside', period_name, 'abandon')

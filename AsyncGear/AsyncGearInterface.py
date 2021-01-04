@@ -16,22 +16,21 @@ class Gear:
 
     def _set_intance_gear_callbacks(self, period_names):
         def _set_intance_gear_callbacks(attr, obj, period_names):
-            from .run_when import run_when_enter
+            from .run_when import _run_when
             periods2del = []
             for period_name in period_names:  # 新时期被加入，找到可以启动的回调等待
                 if period_name in call_backs[attr].keys():  # 启动等待
                     periods2del.append(period_name)
                     for time_method in call_backs[attr][period_name].keys():
-                        if time_method == 'enter':
-                            if asyncio.iscoroutinefunction(attr):
-                                @run_when_enter(obj, period_name, call_backs[attr][period_name][time_method])
-                                async def wrapper():
-                                    await asyncio.create_task(attr(obj))
-                            else:
-                                @run_when_enter(obj, period_name, call_backs[attr][period_name][time_method])
-                                def wrapper():
-                                    # print(f'attr:{repr(attr)}')
-                                    attr(obj)
+                        if asyncio.iscoroutinefunction(attr):
+                            @_run_when(obj, time_method, period_name, call_backs[attr][period_name][time_method])
+                            async def wrapper():
+                                await asyncio.create_task(attr(obj))
+                        else:
+                            @_run_when(obj, time_method, period_name, call_backs[attr][period_name][time_method])
+                            def wrapper():
+                                # print(f'attr:{repr(attr)}')
+                                attr(obj)
 
             # 删除该period记录
             [call_backs[attr].pop(period) for period in periods2del]
