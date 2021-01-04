@@ -46,6 +46,8 @@ def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon')
                     elif queue_blocking == 'abandon':
                         if not bool(pending_task) or pending_task.done():  # previous completes
                             pending_task = asyncio.create_task(decorated())
+                        elif bool(pending_task):
+                            await pending_task
                     elif queue_blocking == 'queue':
                         q.put_nowait(None)
 

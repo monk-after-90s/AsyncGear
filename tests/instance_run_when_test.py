@@ -230,7 +230,7 @@ class TestInstance_run_when(AsyncTestCase):
 
         c = C()
         await asyncio.create_task(Gear(c).set_period('awaken'))
-        await asyncio.create_task(asyncio.sleep(0.25))
+        await asyncio.create_task(asyncio.sleep(0.299))
         await asyncio.create_task(Gear(c).set_period('sleep'))
         self.assertEqual(c.awaken_count, 2)
 
