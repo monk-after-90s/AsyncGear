@@ -5,7 +5,7 @@ can be only one that could be the present period. For example, a human can only 
 old man and dead.
 
 So now not only can you get the exact period, but also await inside the period, await outside the period, await the
-instance when the object enters the period and await the instance when the object exits the period.
+instant when the object enters the period and await the instant when the object exits the period.
 
 Remember to distribute different periods for one object.
 
