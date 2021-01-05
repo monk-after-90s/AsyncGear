@@ -11,7 +11,6 @@ Remember to distribute different periods for one object.
 
 ## uvloop is highly recommended!
 
-### [Install](#Install) · [Usage](#Usage) ·
 
 ### tip
 For convince, remember that the codes below are extracted from this wrapper:
@@ -47,6 +46,10 @@ So if you want to run these codes, you must wrap them back respectively.
 
 Or if you are familiar with asyncio REPL(type 'python -m asyncio' in terminal for python3.8 and above), you can migrate
 these codes to run in a terminal line by line.
+
+---
+
+### [Install](#Install) · [Usage](#Usage) ·
 
 ---
 
