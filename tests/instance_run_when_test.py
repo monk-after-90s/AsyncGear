@@ -420,6 +420,38 @@ class TestInstance_run_when(AsyncTestCase):
         await asyncio.create_task(asyncio.sleep(0.25))
         self.assertEqual(C.awaken_count, 2)
 
+    async def test_class_method_when_inside(self):
+        class C:
+            awaken_count = 0
+
+            @when_inside('awaken')
+            @classmethod
+            async def f1(cls):
+                await asyncio.create_task(asyncio.sleep(0.1))
+                cls.awaken_count += 1
+
+        Gear(C).add_periods('sleep', 'awaken')
+        await asyncio.create_task(Gear(C).set_period('awaken'))
+        await asyncio.create_task(asyncio.sleep(0.25))
+        await asyncio.create_task(Gear(C).set_period('sleep'))
+        self.assertEqual(C.awaken_count, 2)
+
+    async def test_class_method_when_outside(self):
+        class C:
+            awaken_count = 0
+
+            @when_outside('sleep')
+            @classmethod
+            async def f1(cls):
+                await asyncio.create_task(asyncio.sleep(0.1))
+                cls.awaken_count += 1
+
+        Gear(C).add_periods('sleep', 'awaken')
+        await asyncio.create_task(Gear(C).set_period('awaken'))
+        await asyncio.create_task(asyncio.sleep(0.25))
+        await asyncio.create_task(Gear(C).set_period('sleep'))
+        self.assertEqual(C.awaken_count, 2)
+
 
 if __name__ == '__main__':
     asyncUnittest.run()
