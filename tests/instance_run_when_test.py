@@ -40,6 +40,35 @@ class TestInstance_run_when(AsyncTestCase):
         self.assertEqual(c.awaken_count, 4)
         self.assertEqual(c.sleep_count, 1)
 
+        class C:
+            def __init__(self):
+                self.awaken_count = 0
+                self.sleep_count = 0
+
+            @when_enter('awaken')
+            def f(self):
+                self.awaken_count += 1
+
+            @when_enter('awaken')
+            async def f1(self):
+                self.awaken_count += 1
+
+            @when_enter('sleep')
+            def f2(self):
+                self.sleep_count += 1
+
+        c = C()
+        Gear(c).add_periods('sleep', 'awaken')
+        await asyncio.create_task(Gear(c).set_period('awaken'))
+        self.assertEqual(c.awaken_count, 2)
+        self.assertEqual(c.sleep_count, 0)
+        await asyncio.create_task(Gear(c).set_period('sleep'))
+        self.assertEqual(c.awaken_count, 2)
+        self.assertEqual(c.sleep_count, 1)
+        await asyncio.create_task(Gear(c).set_period('awaken'))
+        self.assertEqual(c.awaken_count, 4)
+        self.assertEqual(c.sleep_count, 1)
+
         # queue_blocking test
         ## abandon
         class C:
