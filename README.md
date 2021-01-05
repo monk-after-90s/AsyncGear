@@ -47,6 +47,7 @@ So if you want to run these codes, you must wrap them back respectively.
 
 Or if you are familiar with asyncio REPL(type 'python -m asyncio' in terminal for python3.8 and above), you can migrate
 these codes to run in a terminal line by line.
+
 ---
 
 ## Install
@@ -222,6 +223,8 @@ the designated object gear.
 Logically, 'inside' is a time slot, so the condition is frequently awaited and the decorated is frequently run. To make 
 sense, this must not happen. Therefore we set a 'queue blocking' style -- 'abandon', which means abandoning the new activated if the 
 previous one has not completed yet.
+
+'queue blocking' is talked later.
 ```python
 Gear('Tom').add_periods('sleep', 'awaken')
 
@@ -250,4 +253,114 @@ inside awaken
 See? In 2.5 seconds, there could be only 3 inside_test run and when the period was set 
 to 'sleep' the last inside_test had not completed yet.
 ### run_when_outside
-You can 'run_when_outside' according to ['run_when_inside'](#run_when_inside)
+You can understand 'run_when_outside' according to ['run_when_inside'](#run_when_inside)
+
+### when_enter
+This decorator is similar to run_when_enter. However it is used in class definition.
+
+#### decorate instance method
+```python
+class C:
+    def __init__(self):
+        Gear(self).add_periods('sleep', 'awaken')
+
+    @when_enter('awaken')
+    def f(self):
+        print('synchronous enter awaken callback')
+
+    @when_enter('awaken')
+    async def f1(self):
+        print('Asynchronous enter awaken callback')
+
+    @when_enter('sleep')
+    def f2(self):
+        print('synchronous enter sleep callback')
+
+c = C()
+await asyncio.create_task(Gear(c).set_period('awaken'))
+await asyncio.sleep(1)
+await asyncio.create_task(Gear(c).set_period('sleep'))
+loop.stop()
+```
+Result
+```shell
+synchronous enter awaken callback
+Asynchronous enter awaken callback
+2021-01-05 18:23:43.974 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fcedae93350> to period sleep.
+2021-01-05 18:23:43.974 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fcedae93350> to period awaken.
+2021-01-05 18:23:43.975 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fcedae93350> to period awaken.
+2021-01-05 18:23:44.976 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fcedae93350> to period sleep.
+2021-01-05 18:23:44.976 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fcedae93350> to period sleep.
+synchronous enter sleep callback
+```
+#### decorate class method
+```python
+class C:
+    @when_enter('awaken')
+    @classmethod
+    def f(cls):
+        print('synchronous enter awaken callback')
+
+    @when_enter('awaken')
+    @classmethod
+    async def f1(cls):
+        print('asynchronous enter awaken callback')
+
+    @when_enter('sleep')
+    @classmethod
+    def f2(cls):
+        print('synchronous enter sleep callback')
+
+Gear(C).add_periods('sleep', 'awaken')
+await asyncio.create_task(Gear(C).set_period('awaken'))
+await asyncio.sleep(1)
+await asyncio.create_task(Gear(C).set_period('sleep'))
+
+loop.stop()
+```
+Result
+```shell
+synchronous enter awaken callback
+asynchronous enter awaken callback
+2021-01-05 18:29:28.379 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <class '__main__.main.<locals>.C'> to period sleep.
+2021-01-05 18:29:28.380 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <class '__main__.main.<locals>.C'> to period awaken.
+2021-01-05 18:29:28.380 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <class '__main__.main.<locals>.C'> to period awaken.
+synchronous enter sleep callback
+2021-01-05 18:29:29.383 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <class '__main__.main.<locals>.C'> to period sleep.
+2021-01-05 18:29:29.383 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <class '__main__.main.<locals>.C'> to period sleep.
+```
+### when_exit
+You can understand according to ['when_enter'](#when_enter)
+### when_inside
+This decorator is similar to run_when_inside. However it is used in class definition.
+```python
+class C:
+    def __init__(self):
+        Gear(self).add_periods('sleep', 'awaken')
+
+    @when_inside('awaken')
+    async def f1(self):
+        await asyncio.create_task(asyncio.sleep(1))
+        print('Aynchronous enter awaken callback')
+
+c = C()
+await asyncio.create_task(Gear(c).set_period('awaken'))
+await asyncio.create_task(asyncio.sleep(2.5))
+await asyncio.create_task(Gear(c).set_period('sleep'))
+await asyncio.create_task(asyncio.sleep(1))
+
+loop.stop()
+```
+Result
+```shell
+2021-01-05 18:36:27.760 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period sleep.
+2021-01-05 18:36:27.761 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period awaken.
+2021-01-05 18:36:27.761 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period awaken.
+Aynchronous enter awaken callback
+Aynchronous enter awaken callback
+2021-01-05 18:36:30.267 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period sleep.
+2021-01-05 18:36:30.267 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period sleep.
+Aynchronous enter awaken callback
+```
+### when_outside
+You can understand according to ['when_inside'](#when_inside)
