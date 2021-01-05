@@ -46,7 +46,7 @@ class Gear:
 
     def add_periods(self, *new_period_names: str):
         '''
-        Dynamically add periods for some object.
+        Dynamically add periods for some object. The first added would be the default.
 
         :return:
         '''
@@ -55,9 +55,19 @@ class Gear:
         self._set_intance_gear_callbacks(new_period_names)
 
     def get_present_period(self):
+        '''
+        Get the present period of the target object.
+
+        :return:
+        '''
         return AsyncGear.get_obj_present_period(self.obj)
 
     def get_period_names(self):
+        '''
+        Get the periods of the target object.
+
+        :return:
+        '''
         return AsyncGear.get_obj_period_names(self.obj)
 
     async def set_period(self, period_name: str, slot_num: int = 1):
@@ -65,10 +75,11 @@ class Gear:
         Set obj to period period_name.
 
         :param period_name:
-        :param slot_num: Attention! Do not use it if you do not understand it!
-                slot_num means that only after slot_num times Gear(obj).set_period(period_name,slot_num) run
-                (present time included), the period of Gear(obj) could really be set to period_name, which is interrupted
-                if among these times set_period run a different slot_num is given. Then the procedure is refreshed.
+        :param slot_num: Attention! Do not use it if you do not understand the parameter!
+                slot_num means that only after slot_num times Gear(obj).set_period(period_name,slot_num) run,
+                the period of Gear(obj) could really be set to period_name, which is interrupted
+                if among these times set_period run, the same period_name with a different slot_num is given.
+                Then the procedure is refreshed, the count would be reset.
         :return:
         '''
 
@@ -86,15 +97,41 @@ class Gear:
                 await asyncio.create_task(self.wait_inside_period(period_name))
 
     async def wait_inside_period(self, period_name: str):
+        '''
+        Wait the time slot when the gear is inside period period_name. As logically, as long as the gear is inside period
+        period_name, this coroutine is awaited immediately.
+
+        :param period_name:
+        :return:
+        '''
         return await asyncio.create_task(AsyncGear.wait_inside_period(self.obj, period_name))
 
     async def wait_outside_period(self, period_name: str):
+        '''
+        Wait the time slot when the gear is outside period period_name. As logically, as long as the gear is outside period
+        period_name, this coroutine is awaited immediately.
+
+        :param period_name:
+        :return:
+        '''
         return await asyncio.create_task(AsyncGear.wait_outside_period(self.obj, period_name))
 
     async def wait_enter_period(self, period_name: str):
+        '''
+        Wait the instant when the gear enters period period_name.
+
+        :param period_name:
+        :return:
+        '''
         return await asyncio.create_task(AsyncGear.wait_enter_period(self.obj, period_name))
 
     async def wait_exit_period(self, period_name: str):
+        '''
+        Wait the instant when the gear exits period period_name.
+
+        :param period_name:
+        :return:
+        '''
         return await asyncio.create_task(AsyncGear.wait_exit_period(self.obj, period_name))
 
     # def when_enter(self, period_name: str, queue_blocking='abandon'):

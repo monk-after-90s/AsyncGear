@@ -66,3 +66,83 @@ git clone https://github.com/monk-after-90s/AsyncGear.git
 ---
 
 ## Usage
+
+This module provides methods as follows:
+
+```python
+from AsyncGear import Gear, run_when_enter, run_when_exit, run_when_inside, run_when_outside, when_enter, when_exit, when_inside, when_outside
+```
+
+For convince, remember that the codes below are extracted from this wrapper:
+
+```python
+import asyncio
+# As recommend, use uvloop
+import uvloop
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+from AsyncGear import Gear, run_when_enter, run_when_exit, run_when_inside, run_when_outside, when_enter, when_exit, when_inside, when_outside
+
+
+async def main():
+    # This is the place where these codes are extracted away.
+    pass
+
+
+loop = asyncio.get_event_loop()
+loop.create_task(main())
+loop.run_forever()
+```
+
+So if you want to run these codes, you must wrap them back.
+
+Or if you are familiar with asyncio REPL(type 'python -m asyncio' in terminal for python3.8 and above), you can migrate
+these codes to run in a terminal line by line.
+
+### Gear
+
+Gear is the basic usage, which provides an interface for an object to manipulate the bounded gear.
+
+```python
+# This is the place where these codes are extracted away.
+# to be simple, the target object is a string
+Gear('Tom').add_periods('sleep', 'awaken')  # the first added period would be the default.
+Gear('Tom').add_periods('sleepwalking')  # add_periods could be dynamic.
+# show the present period.
+print(Gear('Tom').get_present_period())
+# show all possible periods
+print(Gear('Tom').get_period_names())
+
+# beforehand wait the target time of the target period
+async def wait_enter(gear: Gear, period):
+    await asyncio.create_task(gear.wait_enter_period(period))
+    print(f'enter {period}')
+
+asyncio.create_task(wait_enter(Gear('Tom'), 'awaken'))
+
+async def wait_exit(gear: Gear, period):
+    await asyncio.create_task(gear.wait_exit_period(period))
+    print(f'exit {period}')
+
+asyncio.create_task(wait_exit(Gear('Tom'), 'sleep'))
+
+async def wait_outside(gear: Gear, period):
+    while True:
+        await asyncio.create_task(gear.wait_outside_period(period))
+        await asyncio.sleep(0.3)
+        print(f'outside {period}')
+
+asyncio.create_task(wait_outside(Gear('Tom'), 'sleep'))
+
+async def wait_inside(gear: Gear, period):
+    while True:
+        await asyncio.create_task(gear.wait_inside_period(period))
+        await asyncio.sleep(0.3)
+        print(f'inside {period}')
+
+asyncio.create_task(wait_inside(Gear('Tom'), 'awaken'))
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+# stay in awaken for 1 seconds
+await asyncio.sleep(1)
+loop.stop()
+```
