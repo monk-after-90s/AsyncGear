@@ -13,7 +13,7 @@ Remember to distribute different periods for one object.
 
 
 ### tip
-For convince, remember that the codes below are extracted from this wrapper:
+For convince, remember that the python codes below are extracted from this wrapper:
 
 ```python
 import asyncio
