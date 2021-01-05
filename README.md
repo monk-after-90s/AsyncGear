@@ -364,3 +364,106 @@ Aynchronous enter awaken callback
 ```
 ### when_outside
 You can understand according to ['when_inside'](#when_inside)
+### high level parameters
+#### queue blocking
+Decorators below have an optional parameter queue_blocking for the asynchronous decorated functions:
+```python
+run_when_enter, run_when_exit, when_enter, when_exit
+```
+'queue_blocking' is to decide the style to run the decorated when the condition is high frequently awaited. For example:
+```python
+@run_when_enter('Tom', 'awaken')
+async def enter_test():
+    await asyncio.create_task(asyncio.sleep(0.1))
+    print('enter')
+
+Gear('Tom').add_periods('sleep', 'awaken')
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+await asyncio.create_task(Gear('Tom').set_period('sleep'))
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+await asyncio.create_task(Gear('Tom').set_period('sleep'))
+await asyncio.sleep(1)
+loop.stop()
+```
+Result
+```shell
+/Users/90houlaoheshang/miniconda3/envs/AsyncGear/bin/python /Users/90houlaoheshang/Desktop/AsyncGear/tests/test3.py
+2021-01-05 18:53:05.436 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 18:53:05.437 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 18:53:05.437 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 18:53:05.437 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 18:53:05.437 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 18:53:05.438 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 18:53:05.438 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 18:53:05.438 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 18:53:05.439 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+enter
+```
+We high frequently set 'Tom' to enter 'awaken', so enter_test was high frequently run for twice. 
+But why we got only one 'enter' printed?
+
+This is because run_when_enter parameter queue_blocking is set to 'abandon' as default, which means abandoning the new activated if the 
+previous one has not completed yet.
+
+If it is set to 'non_block':
+```python
+@run_when_enter('Tom', 'awaken', queue_blocking='non_block')
+async def enter_test():
+    await asyncio.create_task(asyncio.sleep(0.1))
+    print('enter')
+
+Gear('Tom').add_periods('sleep', 'awaken')
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+await asyncio.create_task(Gear('Tom').set_period('sleep'))
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+await asyncio.create_task(Gear('Tom').set_period('sleep'))
+await asyncio.sleep(1)
+loop.stop()
+```
+Result
+```shell
+2021-01-05 19:01:21.706 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:01:21.706 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:01:21.707 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:01:21.707 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:01:21.707 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:01:21.708 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:01:21.708 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:01:21.709 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:01:21.709 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+enter
+enter
+```
+The two 'enter' were printed at the same time, because the twice enter_test run is non-block.
+
+If it is set to 'non_block':
+```python
+@run_when_enter('Tom', 'awaken', queue_blocking='queue')
+async def enter_test():
+    await asyncio.create_task(asyncio.sleep(0.1))
+    print('enter')
+
+Gear('Tom').add_periods('sleep', 'awaken')
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+await asyncio.create_task(Gear('Tom').set_period('sleep'))
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+await asyncio.create_task(Gear('Tom').set_period('sleep'))
+await asyncio.sleep(1)
+loop.stop()
+```
+Result
+```shell
+2021-01-05 19:04:03.460 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:04:03.461 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:04:03.461 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:04:03.462 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:04:03.462 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:04:03.463 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:04:03.463 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:04:03.464 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:04:03.464 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+enter
+enter
+```
+The two 'enter' were printed one by one, because among the twice enter_test the latter is blocked by the former but 
+enqueued to wait to run.
