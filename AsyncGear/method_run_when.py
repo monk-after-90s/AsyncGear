@@ -27,7 +27,7 @@ def _when_ins(time_method: str, period_name: str, queue_blocking='abandon'):
 def when_enter(period_name: str, queue_blocking='abandon'):
     '''
     Decorate a class method or its instance method, to be run when the class or the instance gear enters period
-    period_name. Remember to use in a coroutine and set the gear periods.
+    period_name. You can set the gear periods later. Remember to use in a coroutine.
 
     :param period_name:
     :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
@@ -41,7 +41,7 @@ def when_enter(period_name: str, queue_blocking='abandon'):
 def when_exit(period_name: str, queue_blocking='abandon'):
     '''
     Decorate a class method or its instance method, to be run when the class or the instance gear exits period
-    period_name. Remember to use in a coroutine and set the gear periods.
+    period_name. You can set the gear periods later. Remember to use in a coroutine.
 
     :param period_name:
     :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
@@ -55,7 +55,7 @@ def when_exit(period_name: str, queue_blocking='abandon'):
 def when_inside(period_name: str, ):
     '''
     Decorate a class method or its instance method, to be run when the class or the instance gear is inside period
-    period_name. Remember to use in a coroutine and set the gear periods.
+    period_name. You can set the gear periods later. Remember to use in a coroutine.
 
     :param period_name:
     :return:
@@ -66,7 +66,7 @@ def when_inside(period_name: str, ):
 def when_outside(period_name: str, ):
     '''
     Decorate a class method or its instance method, to be run when the class or the instance gear is outside period
-    period_name. Remember to use in a coroutine and set the gear periods.
+    period_name. You can set the gear periods later. Remember to use in a coroutine.
 
     :param period_name:
     :return:
