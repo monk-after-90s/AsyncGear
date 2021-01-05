@@ -387,7 +387,6 @@ loop.stop()
 ```
 Result
 ```shell
-/Users/90houlaoheshang/miniconda3/envs/AsyncGear/bin/python /Users/90houlaoheshang/Desktop/AsyncGear/tests/test3.py
 2021-01-05 18:53:05.436 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
 2021-01-05 18:53:05.437 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
 2021-01-05 18:53:05.437 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
@@ -467,3 +466,59 @@ enter
 ```
 The two 'enter' were printed one by one, because among the twice enter_test the latter is blocked by the former but 
 enqueued to wait to run.
+#### slot_num
+```python
+Gear(obj).set_period
+```
+has a parameter -- slot_num.
+
+*Attention! Do not use it if you do not understand the parameter!* 
+
+This parameter is used in such a scene, object 'Tom' enters 'sleep' activating 2 friends to be ready to call him 'awaken'
+9 hours later. So 9 hours later, 'Tom' would have to be set twice to 'awaken' then could really be awaken. Its hard to 
+awake him, haha. 
+
+slot_num means that only after slot_num times Gear(obj)
+.set_period(period_name,slot_num) call, the period of Gear(obj) could really be set to period_name, which is interrupted 
+if among these times set_period run, the same period_name with a different slot_num is given. Then the procedure is 
+refreshed, the count would be reset. For demostration:
+```python
+Gear('Tom').add_periods('sleep', 'awaken')
+await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=2))
+print(Gear('Tom').get_present_period())
+await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=2))
+print(Gear('Tom').get_present_period())
+loop.stop()
+```
+Result
+```shell
+sleep
+awaken
+2021-01-05 19:18:36.340 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:18:36.341 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:18:36.341 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+```
+See? Twice 'set_period' set period to 'awaken' finally.
+```python
+Gear('Tom').add_periods('sleep', 'awaken')
+await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=2))
+print(Gear('Tom').get_present_period())
+await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=3))
+print(Gear('Tom').get_present_period())
+await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=3))
+print(Gear('Tom').get_present_period())
+await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=3))
+print(Gear('Tom').get_present_period())
+loop.stop()
+```
+Result
+```shell
+sleep
+sleep
+sleep
+awaken
+2021-01-05 19:21:32.711 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
+2021-01-05 19:21:32.713 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+2021-01-05 19:21:32.713 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
+```
+'slot_num=2' is interrupted and the count is reset.
