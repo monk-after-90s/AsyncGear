@@ -38,7 +38,9 @@ class Gear:
             if not bool(call_backs[attr]):
                 call_backs.pop(attr)
 
-        for attr in type(self.obj).__dict__.values():  # 遍历绑定对象的类属性，找到实例回调方法对应的类函数
+        for attr in set(type(self.obj).__dict__.values()) | \
+                    set(self.obj.__dict__.values()):  # 遍历绑定对象的命名空间及其类命名空间，找到实例回调方法对应的类函数
+            attr = getattr(attr, '__func__', attr) if type(attr) is classmethod else attr
             if attr in call_backs:
                 _set_intance_gear_callbacks(attr, self.obj, period_names)
 

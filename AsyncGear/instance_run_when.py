@@ -50,25 +50,28 @@ def _when_ins(time_method: str, period_name: str, queue_blocking='abandon'):
         # call_backs[f] = call_backs.get(f, {})
         # call_backs[f]['enter'] = 0
 
-        call_backs[f] = call_backs.get(f, {})
-        call_backs[f][period_name] = call_backs[f].get(period_name, {})
-        call_backs[f][period_name][time_method] = queue_blocking
+        call_backs[getattr(f, '__func__', f) if type(f) is classmethod else f] = \
+            call_backs.get(getattr(f, '__func__', f) if type(f) is classmethod else f, {})
+        call_backs[getattr(f, '__func__', f) if type(f) is classmethod else f][period_name] = \
+            call_backs[getattr(f, '__func__', f) if type(f) is classmethod else f].get(period_name, {})
+        call_backs[getattr(f, '__func__', f) if type(f) is classmethod else f][period_name][time_method] = \
+            queue_blocking
         return f
 
     return decorator
 
 
-def when_ins_enter(period_name: str, queue_blocking='abandon'):
+def when_enter(period_name: str, queue_blocking='abandon'):  # todo 文档
     return _when_ins('enter', period_name, queue_blocking)
 
 
-def when_ins_exit(period_name: str, queue_blocking='abandon'):
+def when_exit(period_name: str, queue_blocking='abandon'):
     return _when_ins('exit', period_name, queue_blocking)
 
 
-def when_ins_inside(period_name: str, ):
+def when_inside(period_name: str, ):
     return _when_ins('inside', period_name, 'abandon')
 
 
-def when_ins_outside(period_name: str, ):
+def when_outside(period_name: str, ):
     return _when_ins('outside', period_name, 'abandon')
