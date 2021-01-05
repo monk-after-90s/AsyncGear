@@ -1,22 +1,3 @@
-# def class_decorator(some_class):
-#     '''
-#     :param some_class:
-#     :return:
-#     '''
-# from types import MethodType, FunctionType
-
-
-# class GearMetaClass(type):
-#     pass
-#
-#
-# class C(metaclass=GearMetaClass):
-#     gear_periods = []
-#
-#     def __init__(self):
-#         instance_gear_periods = []
-# from .AsyncGearInterface import Gear
-
 call_backs = {}
 
 
@@ -32,24 +13,6 @@ def _when_ins(time_method: str, period_name: str, queue_blocking='abandon'):
     '''
 
     def decorator(f):
-        # # print(__name__)
-        # if __name__ == '__main__':
-        #     # 此时全局还没有C
-        #     # print(eval(f.__qualname__), )
-        #     # print(globals())
-        #     pass
-        # else:
-        #     # exec(f'''import {__name__};{__name__}.__Gear_callbacks__={'{}'}''')
-        #     # print(__Gear_callbacks__)
-        #     import __main__  # 主启动模块，并非一定是导入该库的模块
-        #     __main__.__Gear_callbacks__ = {}
-        #     # print(f.__qualname__)
-
-        # return str(f.__qualname__).split('.')[-1]
-
-        # call_backs[f] = call_backs.get(f, {})
-        # call_backs[f]['enter'] = 0
-
         call_backs[getattr(f, '__func__', f) if type(f) is classmethod else f] = \
             call_backs.get(getattr(f, '__func__', f) if type(f) is classmethod else f, {})
         call_backs[getattr(f, '__func__', f) if type(f) is classmethod else f][period_name] = \
