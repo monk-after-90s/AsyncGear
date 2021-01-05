@@ -438,7 +438,7 @@ enter
 ```
 The two 'enter' were printed at the same time, because the twice enter_test run is non-block.
 
-If it is set to 'non_block':
+If it is set to 'queue':
 ```python
 @run_when_enter('Tom', 'awaken', queue_blocking='queue')
 async def enter_test():
