@@ -5,7 +5,7 @@ import asyncio
 
 from .AsyncGear import AsyncGear
 
-from .instance_run_when import call_backs
+from .method_run_when import call_backs
 
 
 class Gear:
