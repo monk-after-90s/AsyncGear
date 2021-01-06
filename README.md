@@ -478,7 +478,7 @@ has a parameter -- slot_num.
 *Attention! Do not use it before you do understand the parameter!* 
 
 This parameter is used in such a scene, object 'Tom' enters 'sleep' activating 2 friends to be ready to call him 'awaken'
-9 hours later. So 9 hours later, 'Tom' would have to be set twice to 'awaken' then could really be awaken. Its hard to 
+9 hours later. So 9 hours later, 'Tom' would have to be set twice to 'awaken' then could really be awaken. It's hard to 
 awake him, haha. 
 
 slot_num means that only after slot_num times Gear(obj)
