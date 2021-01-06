@@ -1,7 +1,7 @@
 # AsyncGear
 
 Think about such a scene, some object has different states or periods, well we call periods. Among these periods, there
-can be only one that could be the present period. For example, a human can only be one period among baby, youth, adult,
+can be only one that could be the present period. For example, a human can only be in one period among baby, youth, adult,
 old man and dead.
 
 So now not only can you get the exact period, but also await inside the period, await outside the period, await the
