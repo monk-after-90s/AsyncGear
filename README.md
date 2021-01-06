@@ -482,9 +482,10 @@ This parameter is used in such a scene, object 'Tom' enters 'sleep' activating 2
 awake him, haha. 
 
 slot_num means that only after slot_num times Gear(obj)
-.set_period(period_name,slot_num) call, the period of Gear(obj) could really be set to period_name, which is interrupted 
-if among these times set_period run, the same period_name with a different slot_num is given. Then the procedure is 
-refreshed, the count would be reset. For demostration:
+.set_period(period_name,slot_num) call with the same parameters, the period of Gear(obj) could really be set to 
+period_name, which is interrupted 
+if among these times set_period run, the same period_name with a different slot_num is given. Then the procedure for 
+period_name is refreshed, the count would be reset. For demostration:
 ```python
 Gear('Tom').add_periods('sleep', 'awaken')
 await asyncio.create_task(Gear('Tom').set_period('awaken', slot_num=2))
