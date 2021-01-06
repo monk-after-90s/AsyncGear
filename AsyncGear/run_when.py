@@ -32,7 +32,7 @@ def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon')
                     asyncio.create_task(queue2run_coroutine())
             while True:
                 # wait the exact time
-                from .AsyncGearInterface import Gear
+                from .Gear import Gear
                 await asyncio.create_task(getattr(Gear(obj),
                                                   {'enter': 'wait_enter_period',
                                                    'exit': 'wait_exit_period',

@@ -3,16 +3,25 @@ Transfer an object to its gear, as an interface.
 '''
 import asyncio
 
-from .AsyncGear import AsyncGear
+from .AsyncPeriod import AsyncPeriod
 
 from .method_run_when import call_backs
 
+gears = {}
 
-class Gear:
+
+def Gear(obj):
+    if obj not in gears.keys():
+        gears[obj] = _Gear(obj)
+    return gears[obj]
+
+
+class _Gear:
     # last_set_period = {}
 
     def __init__(self, obj):
         self.obj = obj
+        self.periods = {}
 
     def _set_intance_gear_callbacks(self, period_names):
         def _set_intance_gear_callbacks(attr, obj, period_names):
@@ -25,12 +34,11 @@ class Gear:
                         if asyncio.iscoroutinefunction(attr):
                             @_run_when(obj, time_method, period_name, call_backs[attr][period_name][time_method])
                             async def wrapper():
-                                await asyncio.create_task(attr(obj))
+                                return await asyncio.create_task(attr(obj))
                         else:
                             @_run_when(obj, time_method, period_name, call_backs[attr][period_name][time_method])
                             def wrapper():
-                                # print(f'attr:{repr(attr)}')
-                                attr(obj)
+                                return attr(obj)
 
             # 删除该period记录
             [call_backs[attr].pop(period) for period in periods2del]
@@ -51,7 +59,12 @@ class Gear:
         :return:
         '''
         for new_period_name in new_period_names:
-            AsyncGear.add_period(self.obj, new_period_name)
+            if new_period_name in self.periods.keys():
+                raise KeyError(f'Period {new_period_name} has already been added.')
+            self.periods[new_period_name] = AsyncPeriod(new_period_name, self.obj, self)
+            if len(self.periods.keys()) == 1:
+                self._set_period(new_period_name)
+
         self._set_intance_gear_callbacks(new_period_names)
 
     def get_present_period(self):
@@ -60,7 +73,9 @@ class Gear:
 
         :return:
         '''
-        return AsyncGear.get_obj_present_period(self.obj)
+        for name, period in self.periods.items():
+            if period.get_state():
+                return name
 
     def get_period_names(self):
         '''
@@ -68,7 +83,12 @@ class Gear:
 
         :return:
         '''
-        return AsyncGear.get_obj_period_names(self.obj)
+        return tuple(self.periods.keys())
+
+    def _set_period(self, period_name: str, slot_num: int = 1):
+        p = self.periods[period_name]
+        p.slots_num_for_true = slot_num
+        p.filled_slots_num += 1
 
     async def set_period(self, period_name: str, slot_num: int = 1):
         '''
@@ -88,7 +108,7 @@ class Gear:
         else:
             await asyncio.create_task(self.wait_inside_period(period_name))
         try:
-            return await asyncio.create_task(AsyncGear.set_obj_period(self.obj, period_name, slot_num))
+            self._set_period(period_name, slot_num)
         finally:
             # self.last_set_period[self.obj] = period_name
             if self.get_present_period() != period_name:
@@ -104,7 +124,8 @@ class Gear:
         :param period_name:
         :return:
         '''
-        return await asyncio.create_task(AsyncGear.wait_inside_period(self.obj, period_name))
+        period = self.periods[period_name]
+        await asyncio.create_task(period.wait_true())
 
     async def wait_outside_period(self, period_name: str):
         '''
@@ -114,7 +135,8 @@ class Gear:
         :param period_name:
         :return:
         '''
-        return await asyncio.create_task(AsyncGear.wait_outside_period(self.obj, period_name))
+        period = self.periods[period_name]
+        await asyncio.create_task(period.wait_false())
 
     async def wait_enter_period(self, period_name: str):
         '''
@@ -123,7 +145,8 @@ class Gear:
         :param period_name:
         :return:
         '''
-        return await asyncio.create_task(AsyncGear.wait_enter_period(self.obj, period_name))
+        period = self.periods[period_name]
+        await asyncio.create_task(period.wait_change_into_true())
 
     async def wait_exit_period(self, period_name: str):
         '''
@@ -132,7 +155,8 @@ class Gear:
         :param period_name:
         :return:
         '''
-        return await asyncio.create_task(AsyncGear.wait_exit_period(self.obj, period_name))
+        period = self.periods[period_name]
+        await asyncio.create_task(period.wait_change_into_false())
 
     # def when_enter(self, period_name: str, queue_blocking='abandon'):
     #     return run_when_enter(self.obj, period_name, queue_blocking)
