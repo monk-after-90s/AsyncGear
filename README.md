@@ -344,7 +344,7 @@ class C:
     @when_inside('awaken')
     async def f1(self):
         await asyncio.create_task(asyncio.sleep(1))
-        print('Aynchronous enter awaken callback')
+        print('Aynchronous inside awaken callback')
 
 c = C()
 await asyncio.create_task(Gear(c).set_period('awaken'))
@@ -356,14 +356,14 @@ loop.stop()
 ```
 Result
 ```shell
-2021-01-05 18:36:27.760 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period sleep.
-2021-01-05 18:36:27.761 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period awaken.
-2021-01-05 18:36:27.761 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period awaken.
-Aynchronous enter awaken callback
-Aynchronous enter awaken callback
-2021-01-05 18:36:30.267 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period sleep.
-2021-01-05 18:36:30.267 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7fb204f1b550> to period sleep.
-Aynchronous enter awaken callback
+2021-01-06 13:40:15.688 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7faba315e450> to period sleep.
+2021-01-06 13:40:15.689 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7faba315e450> to period awaken.
+2021-01-06 13:40:15.689 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7faba315e450> to period awaken.
+Aynchronous inside awaken callback
+Aynchronous inside awaken callback
+2021-01-06 13:40:18.192 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7faba315e450> to period sleep.
+2021-01-06 13:40:18.193 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set <__main__.main.<locals>.C object at 0x7faba315e450> to period sleep.
+Aynchronous inside awaken callback
 ```
 ### when_outside
 You can understand according to ['when_inside'](#when_inside)
