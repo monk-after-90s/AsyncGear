@@ -10,18 +10,14 @@ from .method_run_when import call_backs
 gears = {}
 
 
-def Gear(obj):
-    if obj not in gears.keys():
-        gears[obj] = _Gear(obj)
-    return gears[obj]
-
-
 class _Gear:
     # last_set_period = {}
 
     def __init__(self, obj):
         self.obj = obj
         self.periods = {}
+        self._unlocked = asyncio.Event()
+        self._unlocked.set()
 
     def _set_intance_gear_callbacks(self, period_names):
         def _set_intance_gear_callbacks(attr, obj, period_names):
@@ -92,7 +88,7 @@ class _Gear:
 
     async def set_period(self, period_name: str, slot_num: int = 1):
         '''
-        Set obj to period period_name.
+        Set obj to period period_name when unlocked.
 
         :param period_name:
         :param slot_num: Attention! Do not use it if you do not understand the parameter!
@@ -108,7 +104,10 @@ class _Gear:
         else:
             await asyncio.create_task(self.wait_inside_period(period_name))
         try:
-            self._set_period(period_name, slot_num)
+            if self._unlocked.is_set():
+                self._set_period(period_name, slot_num)
+            else:
+                raise PermissionError('The gear is locked.')
         finally:
             # self.last_set_period[self.obj] = period_name
             if self.get_present_period() != period_name:
@@ -158,6 +157,29 @@ class _Gear:
         period = self.periods[period_name]
         await asyncio.create_task(period.wait_change_into_false())
 
+    def lock(self):
+        '''
+        Lock the period of the gear.
+
+        :return:
+        '''
+        self._unlocked.clear()
+
+    def unlock(self):
+        '''
+        Unlock the period of the gear after the gear is locked.
+
+        :return:
+        '''
+        self._unlocked.set()
+
+    async def wait_unlock(self):
+        '''
+        wait the gear to be unlocked.
+
+        :return:
+        '''
+        await asyncio.create_task(self._unlocked.wait())
     # def when_enter(self, period_name: str, queue_blocking='abandon'):
     #     return run_when_enter(self.obj, period_name, queue_blocking)
     #
@@ -169,3 +191,9 @@ class _Gear:
     #
     # def when_outside(self, period_name: str, queue_blocking='abandon'):
     #     return run_when_outside(self.obj, period_name, queue_blocking)
+
+
+def Gear(obj) -> _Gear:
+    if obj not in gears.keys():
+        gears[obj] = _Gear(obj)
+    return gears[obj]

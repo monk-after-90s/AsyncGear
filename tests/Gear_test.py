@@ -249,6 +249,26 @@ class TestGear(AsyncTestCase):
         self.assertGreaterThan(time2 - time1, 0.5)
         self.assertLessThan(time2 - time1, 0.7)
 
+    async def test_gear_lock(self):
+        await asyncio.create_task(Gear(self).set_period('test2'))
+        Gear(self).lock()
+        try:
+            await asyncio.create_task(Gear(self).set_period('test3'))
+        except BaseException as e:
+            self.assertEqual(type(e), PermissionError)
+        else:
+            self.assertTrue(False)
+
+        async def unlock():
+            await asyncio.sleep(1)
+            Gear(self).unlock()
+
+        asyncio.create_task(unlock())
+        t = asyncio.get_running_loop().time()
+        await Gear(self).wait_unlock()
+        self.assertEqual(1, round(asyncio.get_running_loop().time() - t))
+        await asyncio.create_task(Gear(self).set_period('test1'))
+
 
 if __name__ == '__main__':
     asyncUnittest.run()
