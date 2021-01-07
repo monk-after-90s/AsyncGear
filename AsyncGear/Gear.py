@@ -88,7 +88,7 @@ class _Gear:
 
     async def set_period(self, period_name: str, slot_num: int = 1):
         '''
-        Set obj to period period_name when unlocked.
+        Set obj to period period_name when unlocked, otherwise PermissionError is raised.
 
         :param period_name:
         :param slot_num: Attention! Do not use it if you do not understand the parameter!
