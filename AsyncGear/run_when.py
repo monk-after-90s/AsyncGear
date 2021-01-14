@@ -51,7 +51,9 @@ def _run_when(obj, time_method: str, period_name: str, queue_blocking='abandon')
                     elif queue_blocking == 'queue':
                         q.put_nowait(None)
 
-        asyncio.create_task(runner())
+        runner_task = asyncio.create_task(runner())
+        from .Gear import Gear
+        Gear(obj).assistant_tasks.append(runner_task)
 
         return decorated
 

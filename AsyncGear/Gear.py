@@ -6,6 +6,7 @@ import asyncio
 from .AsyncPeriod import AsyncPeriod
 
 from .method_run_when import call_backs
+from ensureTaskCanceled import ensureTaskCanceled
 
 gears = {}
 
@@ -18,6 +19,18 @@ class _Gear:
         self.periods = {}
         self._unlocked = asyncio.Event()
         self._unlocked.set()
+        self.assistant_tasks = []
+
+    def delete(self):
+        '''
+        Delete the gear. You'd better delete the gear when it is no more used.
+
+        :return:
+        '''
+        if self.obj in gears.keys():
+            gears.pop(self.obj)
+        for task in self.assistant_tasks:
+            asyncio.create_task(ensureTaskCanceled(task))
 
     def _set_intance_gear_callbacks(self, period_names):
         def _set_intance_gear_callbacks(attr, obj, period_names):
