@@ -269,6 +269,21 @@ class TestGear(AsyncTestCase):
         self.assertEqual(1, round(asyncio.get_running_loop().time() - t))
         await asyncio.create_task(Gear(self).set_period('test1'))
 
+    async def test_delete_gear(self):
+        g1 = Gear(self)
+        self.assertIs(g1, Gear(self))
+        Gear(self).add_periods('awaken', 'sleep')
+
+        @run_when_enter(self, 'awaken')
+        def f():
+            pass
+
+        self.assertTrue(bool(Gear(self).assistant_tasks))
+        Gear(self).delete()
+        self.assertIsNot(g1, Gear(self))
+        await asyncio.create_task(asyncio.sleep(0.5))
+        self.assertTrue(all([task.done() for task in g1.assistant_tasks]))
+
 
 if __name__ == '__main__':
     asyncUnittest.run()
