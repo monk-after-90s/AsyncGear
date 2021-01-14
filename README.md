@@ -106,7 +106,7 @@ from AsyncGear import Gear, run_when_enter, run_when_exit, run_when_inside, run_
 
 ### Gear
 
-Gear is the basic usage, which provides an interface for an object to manipulate the bounded gear.
+Gear is the core usage, which provides an interface for an object to manipulate the bounded gear.
 
 ```python
 # to be simple, the target object is a string
