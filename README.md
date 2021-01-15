@@ -167,6 +167,13 @@ inside awaken
 outside sleep
 inside awaken
 ```
+### Gear(obj).delete
+When you no more need a gear, you'd better delete it. Especially when you dynamically keep creating new gears, you must keep
+deleting the old gears.
+```python
+Gear('Tom').add_periods('sleep', 'awaken') 
+Gear('Tom').delete()
+```
 ### run_when_enter
 run_when_enter is to decorate a function or coroutine function to be run when just entering the designated period of 
 the designated object gear.
