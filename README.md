@@ -45,7 +45,7 @@ loop.run_until_complete(loop.shutdown_asyncgens())
 So if you want to run these codes, you must wrap them back respectively.
 
 Or if you are familiar with asyncio REPL(type 'python -m asyncio' in terminal for python3.8 and above), you can migrate
-these codes to run in a terminal line by line.
+these codes to run in a terminal.
 
 ---
 
