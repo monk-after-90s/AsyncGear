@@ -284,6 +284,13 @@ class TestGear(AsyncTestCase):
         await asyncio.create_task(asyncio.sleep(0.5))
         self.assertTrue(all([task.done() for task in g1.assistant_tasks]))
 
+    async def test_prev_period(self):
+        self.assertEqual(Gear(self).prev_period, None)
+        await asyncio.create_task(Gear(self).set_period('test2'))
+        self.assertEqual(Gear(self).prev_period, 'test1')
+        await asyncio.create_task(Gear(self).set_period('test3'))
+        self.assertEqual(Gear(self).prev_period, 'test2')
+
 
 if __name__ == '__main__':
     asyncUnittest.run()

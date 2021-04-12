@@ -20,6 +20,7 @@ class _Gear:
         self._unlocked = asyncio.Event()
         self._unlocked.set()
         self.assistant_tasks = []
+        self.prev_period = None
 
     def delete(self):
         '''

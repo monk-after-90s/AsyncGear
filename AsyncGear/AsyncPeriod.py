@@ -36,10 +36,13 @@ class AsyncPeriod:
         self._filled_slots_num = x
         # 触发
         if self.filled_slots_num >= self.slots_num_for_true:
+            curret_p = self.gear.get_present_period()
             for period in self.gear.periods.values():
                 period._ensure_state(period is self)
 
-                logger.debug(f'set {repr(self.obj)} to period {self._name}.')
+            logger.debug(f'set {repr(self.obj)} to period {self._name}.')
+            if curret_p is not None:
+                self.gear.prev_period = curret_p
 
             self.filled_slots_num = 0
 
