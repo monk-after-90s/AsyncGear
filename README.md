@@ -168,7 +168,7 @@ outside sleep
 inside awaken
 ```
 ### Gear(obj).delete
-When you no more need a gear, you'd better delete it. Especially when you dynamically keep creating new gears, you must keep
+When you no more need a gear, you'd better delete it to save RAM. Especially when you dynamically keep creating new gears, you must keep
 deleting the old gears.
 ```python
 Gear('Tom').add_periods('sleep', 'awaken') 
