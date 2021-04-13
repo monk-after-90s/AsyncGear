@@ -167,6 +167,39 @@ inside awaken
 outside sleep
 inside awaken
 ```
+### Gear(obj).lock
+You could lock the gear period. If locked, the gear could no more be changed the period, or raise PermissionError. 
+Of course, you could wait the gear unlocked.
+```python
+import traceback
+
+Gear('Tom').add_periods('sleep', 'awaken')
+Gear('Tom').lock()
+try:
+    await asyncio.create_task(Gear('Tom').set_period('awaken'))
+except:
+    print(traceback.format_exc())
+
+async def wait2set_awaken():
+    await Gear('Tom').wait_unlock()
+    await asyncio.create_task(Gear('Tom').set_period('awaken'))
+    loop.stop()
+
+asyncio.create_task(wait2set_awaken())
+
+await asyncio.sleep(1)
+Gear('Tom').unlock()
+```
+```shell
+2021-04-13 12:05:06.650 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:43 - set 'Tom' to period sleep.
+Traceback (most recent call last):
+  File "<console>", line 2, in <module>
+  ...
+    raise PermissionError('The gear is locked.')
+PermissionError: The gear is locked.
+2021-04-13 12:05:07.652 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:43 - set 'Tom' to period awaken.
+```
+
 ### Gear(obj).delete
 When you no more need a gear, you'd better delete it to save RAM. Especially when you dynamically keep creating new gears, you must keep
 deleting the old gears.
