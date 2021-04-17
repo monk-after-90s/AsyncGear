@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 
 # todo 以后可以想想实现子集、并集、交集等，最小元素考虑是互斥时期
 from loguru import logger
@@ -15,6 +16,7 @@ class AsyncPeriod:
 
         self._slots_num_for_true = 1
         self._filled_slots_num = 0
+        self._ensured_time = None
 
     @property
     def slots_num_for_true(self):
@@ -36,13 +38,11 @@ class AsyncPeriod:
         self._filled_slots_num = x
         # 触发
         if self.filled_slots_num >= self.slots_num_for_true:
-            curret_p = self.gear.get_present_period()
+            self.gear.prev_period = self.gear.get_present_period()
             for period in self.gear.periods.values():
                 period._ensure_state(period is self)
-
+            self.gear._current_period = self
             logger.debug(f'set {repr(self.obj)} to period {self._name}.')
-            if curret_p is not None:
-                self.gear.prev_period = curret_p
 
             self.filled_slots_num = 0
 
@@ -50,6 +50,7 @@ class AsyncPeriod:
         if state:
             if not self._true_event.is_set():
                 self._true_event.set()
+                self._ensured_time = datetime.datetime.utcnow()
             if self._false_event.is_set():
                 self._false_event.clear()
 
@@ -58,6 +59,7 @@ class AsyncPeriod:
                 self._true_event.clear()
             if not self._false_event.is_set():
                 self._false_event.set()
+                self._ensured_time = None
 
     def get_state(self):
         return self._true_event.is_set() and not self._false_event.is_set()

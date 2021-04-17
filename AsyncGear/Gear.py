@@ -2,6 +2,7 @@
 Transfer an object to its gear, as an interface.
 '''
 import asyncio
+import datetime
 
 from .AsyncPeriod import AsyncPeriod
 
@@ -21,6 +22,7 @@ class _Gear:
         self._unlocked.set()
         self.assistant_tasks = []
         self.prev_period = None
+        self._current_period: AsyncPeriod = None
 
     def delete(self):
         '''
@@ -83,9 +85,17 @@ class _Gear:
 
         :return:
         '''
-        for name, period in self.periods.items():
-            if period.get_state():
-                return name
+        if self._current_period is not None:
+            return self._current_period._name
+
+    def current_set_datetime(self) -> datetime.datetime:
+        '''
+        Get the UTC datetime when the present period is set.
+
+        :return:
+        '''
+        if self._current_period is not None:
+            return self._current_period._ensured_time
 
     def get_period_names(self):
         '''

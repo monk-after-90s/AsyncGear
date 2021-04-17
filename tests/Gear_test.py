@@ -10,6 +10,7 @@ from AsyncGear import Gear, run_when_enter
 
 import asyncUnittest
 from asyncUnittest import AsyncTestCase
+import datetime
 
 
 class TestGear(AsyncTestCase):
@@ -290,6 +291,20 @@ class TestGear(AsyncTestCase):
         self.assertEqual(Gear(self).prev_period, 'test1')
         await asyncio.create_task(Gear(self).set_period('test3'))
         self.assertEqual(Gear(self).prev_period, 'test2')
+
+    async def test_get_present_period_set_datetime(self):
+        UTC_now = datetime.datetime.utcnow()
+        await asyncio.create_task(Gear(self).set_period('test2'))
+        self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 0)
+
+        await asyncio.create_task(asyncio.sleep(1))
+        UTC_now = datetime.datetime.utcnow()
+        await asyncio.create_task(Gear(self).set_period('test2'))
+        self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 1)
+
+        await asyncio.create_task(Gear(self).set_period('test3'))
+        UTC_now = datetime.datetime.utcnow()
+        self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 0)
 
 
 if __name__ == '__main__':
