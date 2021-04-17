@@ -199,6 +199,44 @@ Traceback (most recent call last):
 PermissionError: The gear is locked.
 2021-04-13 12:05:07.652 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:43 - set 'Tom' to period awaken.
 ```
+### Gear(obj).prev_period
+Get the previously set period name, or None.
+```python
+Gear('Tom').add_periods('sleep', 'awaken')  # the first added period would be the default.
+print(Gear('Tom').prev_period)
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+print(Gear('Tom').prev_period)
+
+loop.stop()
+```
+Result:
+```shell
+2021-04-17 18:13:54.257 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:45 - set 'Tom' to period sleep.
+2021-04-17 18:13:54.258 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:45 - set 'Tom' to period awaken.
+None
+sleep
+```
+
+### Gear(obj).current_set_datetime
+Get the UTC datetime when the present period is set.
+
+```python
+Gear('Tom').add_periods('sleep', 'awaken')  # the first added period would be the default.
+print(Gear('Tom').current_set_datetime())
+await asyncio.sleep(1)
+await asyncio.create_task(Gear('Tom').set_period('awaken'))
+print(Gear('Tom').current_set_datetime())
+
+loop.stop()
+```
+Result
+```shell
+2021-04-17 18:23:02.738 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:45 - set 'Tom' to period sleep.
+2021-04-17 10:23:02.738709
+2021-04-17 10:23:03.741432
+2021-04-17 18:23:03.741 | DEBUG    | AsyncGear.AsyncPeriod:filled_slots_num:45 - set 'Tom' to period awaken.
+```
+
 
 ### Gear(obj).delete
 When you no more need a gear, you'd better delete it to save RAM. Especially when you dynamically keep creating new gears, you must keep
