@@ -13,7 +13,7 @@ Remember to distribute different periods for one object.
 
 
 ### tip
-For convince, remember that the python codes below are extracted from this wrapper:
+For convenience, remember that the python codes below are extracted from this wrapper:
 
 ```python
 import asyncio
@@ -59,38 +59,6 @@ these codes to run in a terminal.
 
 ```shell
 pip install AsyncGear
-```
-
-Use in a coroutine.
-
-```python
-Gear('Tom').add_periods('sleep', 'awaken')
-
-async def wait_awaken():
-    await asyncio.create_task(Gear('Tom').wait_enter_period('awaken'))
-    print('awaken')
-    # When all tasks completed, close the loop.
-    loop.stop()
-
-# set up a task to wait period 'awaken'
-asyncio.create_task(wait_awaken())
-# sleep for a while
-await asyncio.create_task(asyncio.sleep(0.1))
-# set the period
-await asyncio.create_task(Gear('Tom').set_period('awaken'))
-```
-Result
-```shell
-2021-01-05 17:19:20.168 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period sleep.
-awaken
-2021-01-05 17:19:20.271 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
-2021-01-05 17:19:20.272 | DEBUG    | AsyncGear.AsyncGear:_set_obj_period:74 - set 'Tom' to period awaken.
-```
-You can also clone it into your project directory
-from [AsyncGear GitHub repository](https://github.com/monk-after-90s/AsyncGear.git):
-
-```shell
-git clone https://github.com/monk-after-90s/AsyncGear.git
 ```
 
 ---
