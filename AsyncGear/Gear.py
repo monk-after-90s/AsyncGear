@@ -105,6 +105,21 @@ class _Gear:
         '''
         return tuple(self.periods.keys())
 
+    def sync_set_period(self, period_name: str, slot_num: int = 1):
+        '''
+        Synchronous version of set_period.
+        Set obj to period period_name when unlocked, otherwise PermissionError is raised.
+
+        :param period_name:
+        :param slot_num: Attention! Do not use it if you do not understand the parameter!
+                slot_num means that only after slot_num times Gear(obj).set_period(period_name,slot_num) run,
+                the period of Gear(obj) could really be set to period_name, which is interrupted
+                if among these times set_period run, the same period_name with a different slot_num is given.
+                Then the procedure is refreshed, the count would be reset.
+        :return:
+        '''
+        return self._set_period(period_name, slot_num)
+
     def _set_period(self, period_name: str, slot_num: int = 1):
         p = self.periods[period_name]
         p.slots_num_for_true = slot_num

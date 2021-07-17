@@ -306,6 +306,10 @@ class TestGear(AsyncTestCase):
         UTC_now = datetime.datetime.utcnow()
         self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 0)
 
+    async def test_sync_set_period(self):
+        Gear(self).sync_set_period('test2')
+        self.assertEqual('test2', Gear(self).get_present_period())
+
 
 if __name__ == '__main__':
     asyncUnittest.run()
