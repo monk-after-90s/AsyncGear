@@ -208,107 +208,24 @@ class TestGear(AsyncTestCase):
 
         self.assertLessThan(time2 - time1, 0.2)
 
-        asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test3'))
-        # await asyncio.create_task(AsyncGear.wait_outside_period(self, 'test1'))
-        await asyncio.create_task(Gear(self).wait_outside_period('test1'))
-        time3 = asyncio.get_running_loop().time()
-        self.assertGreaterThan(time3 - time2, 0.2)
+    async def test_high_frequence(self):
+        Gear(self).count = 10000
 
-    async def test_wait_enter_period(self):
-        _far_wait_enter_period_helps_test_wait_enter_period_task = asyncio.create_task(
-            self._far_wait_enter_period_helps_test_wait_enter_period(self, 'test1'))
-        time1 = asyncio.get_running_loop().time()
-        asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test3'))
-        await asyncio.create_task(Gear(self).wait_enter_period('test3'))
-        time2 = asyncio.get_running_loop().time()
-        self.assertGreaterThan(time2 - time1, 0.2)
-        asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test1'))
-        await _far_wait_enter_period_helps_test_wait_enter_period_task
+        async def set():
+            for i in range(Gear(self).count):
+                if Gear(self).get_present_period() == 'test2':
+                    await Gear(self).set_period('test1')
+                    Gear(self).count -= 1
+                else:
+                    await Gear(self).set_period('test2')
+                    Gear(self).count -= 1
 
-    async def _far_wait_enter_period_helps_test_wait_enter_period(self, obj, period_name: str):
-        time1 = asyncio.get_running_loop().time()
-        await asyncio.create_task(Gear(obj).wait_enter_period(period_name))
-        time2 = asyncio.get_running_loop().time()
-        self.assertGreaterThan(time2 - time1, 0.5)
-        self.assertLessThan(time2 - time1, 0.7)
+        asyncio.create_task(set())
 
-    async def test_wait_exit_period(self):
-        _far_wait_exit_period_helps_test_wait_exit_period_task = asyncio.create_task(
-            self._far_wait_exit_period_helps_test_wait_exit_period(self, 'test2'))
-        time1 = asyncio.get_running_loop().time()
-        asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test2'))
-        await asyncio.create_task(Gear(self).wait_exit_period('test1'))
-        time2 = asyncio.get_running_loop().time()
-        self.assertGreaterThan(time2 - time1, 0.2)
-        asyncio.create_task(self._wait_then_set_period(self, 0.3, 'test1'))
-        await _far_wait_exit_period_helps_test_wait_exit_period_task
-
-    async def _far_wait_exit_period_helps_test_wait_exit_period(self, obj, period_name: str):
-        time1 = asyncio.get_running_loop().time()
-        await asyncio.create_task(Gear(obj).wait_exit_period(period_name))
-        time2 = asyncio.get_running_loop().time()
-        self.assertGreaterThan(time2 - time1, 0.5)
-        self.assertLessThan(time2 - time1, 0.7)
-
-    async def test_gear_lock(self):
-        await asyncio.create_task(Gear(self).set_period('test2'))
-        Gear(self).lock()
-        try:
-            await asyncio.create_task(Gear(self).set_period('test3'))
-        except BaseException as e:
-            self.assertEqual(type(e), PermissionError)
-        else:
-            self.assertTrue(False)
-
-        async def unlock():
-            await asyncio.sleep(1)
-            Gear(self).unlock()
-
-        asyncio.create_task(unlock())
-        t = asyncio.get_running_loop().time()
-        await Gear(self).wait_unlock()
-        self.assertEqual(1, round(asyncio.get_running_loop().time() - t))
-        await asyncio.create_task(Gear(self).set_period('test1'))
-
-    async def test_delete_gear(self):
-        g1 = Gear(self)
-        self.assertIs(g1, Gear(self))
-        Gear(self).add_periods('awaken', 'sleep')
-
-        @run_when_enter(self, 'awaken')
-        def f():
-            pass
-
-        self.assertTrue(bool(Gear(self).assistant_tasks))
-        Gear(self).delete()
-        self.assertIsNot(g1, Gear(self))
-        await asyncio.create_task(asyncio.sleep(0.5))
-        self.assertTrue(all([task.done() for task in g1.assistant_tasks]))
-
-    async def test_prev_period(self):
-        self.assertEqual(Gear(self).prev_period, None)
-        await asyncio.create_task(Gear(self).set_period('test2'))
-        self.assertEqual(Gear(self).prev_period, 'test1')
-        await asyncio.create_task(Gear(self).set_period('test3'))
-        self.assertEqual(Gear(self).prev_period, 'test2')
-
-    async def test_get_present_period_set_datetime(self):
-        UTC_now = datetime.datetime.utcnow()
-        await asyncio.create_task(Gear(self).set_period('test2'))
-        self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 0)
-
-        await asyncio.create_task(asyncio.sleep(1))
-        UTC_now = datetime.datetime.utcnow()
-        await asyncio.create_task(Gear(self).set_period('test2'))
-        self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 1)
-
-        await asyncio.create_task(Gear(self).set_period('test3'))
-        UTC_now = datetime.datetime.utcnow()
-        self.assertEqual(round((UTC_now - Gear(self).current_set_datetime()).total_seconds()), 0)
-
-    async def test_sync_set_period(self):
-        Gear(self).sync_set_period('test2')
-        self.assertEqual('test2', Gear(self).get_present_period())
+        while Gear(self).count > 1:
+            test1_waiter = asyncio.create_task(Gear(self).wait_enter_period('test1'))
+            test2_waiter = asyncio.create_task(Gear(self).wait_enter_period('test2'))
+            await asyncio.wait([test1_waiter, test2_waiter], return_when='FIRST_COMPLETED', timeout=1)
 
 
 if __name__ == '__main__':
