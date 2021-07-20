@@ -58,10 +58,10 @@ class _Gear:
             if not bool(call_backs[attr]):
                 call_backs.pop(attr)
 
-        for attr in set(getattr(type(self.obj), '__dict__', {}).values()) | \
-                    set(getattr(self.obj, '__dict__', {}).values()):  # 遍历绑定对象的命名空间及其类命名空间，找到实例回调方法对应的类函数
+        for attr in list(getattr(type(self.obj), '__dict__', {}).values()) + \
+                    list(getattr(self.obj, '__dict__', {}).values()):  # 遍历绑定对象的命名空间及其类命名空间，找到实例回调方法对应的类函数
             attr = getattr(attr, '__func__', attr) if type(attr) is classmethod else attr
-            if attr in call_backs:
+            if attr in list(call_backs.keys()):
                 _set_intance_gear_callbacks(attr, self.obj, period_names)
 
     def add_periods(self, *new_period_names: str):

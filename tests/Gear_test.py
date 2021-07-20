@@ -227,6 +227,17 @@ class TestGear(AsyncTestCase):
             test2_waiter = asyncio.create_task(Gear(self).wait_enter_period('test2'))
             await asyncio.wait([test1_waiter, test2_waiter], return_when='FIRST_COMPLETED', timeout=1)
 
+    async def test_bind_obj_has_dict_property(self):
+        class C:
+            a = {}
+
+        Gear(C).add_periods('1')
+        Gear(C).add_periods('2')
+        self.assertEqual('1', Gear(C).get_present_period())
+        waiter = asyncio.create_task(Gear(C).wait_enter_period('2'))
+        await Gear(C).set_period('2')
+        await waiter
+
 
 if __name__ == '__main__':
     asyncUnittest.run()
