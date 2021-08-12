@@ -10,7 +10,6 @@ from AsyncGear import Gear, run_when_enter
 
 import asyncUnittest
 from asyncUnittest import AsyncTestCase
-import datetime
 
 
 class TestGear(AsyncTestCase):
@@ -251,6 +250,17 @@ class TestGear(AsyncTestCase):
 
         waiter_task = asyncio.create_task(Gear(self).wait_change_period())
         Gear(self).sync_set_period('test3')
+        waited = None
+        try:
+            await asyncio.wait_for(waiter_task, 0.1)
+            waited = True
+        except asyncio.TimeoutError:
+            waited = False
+        self.assertIs(waited, True)
+
+        Gear(self).add_periods('test4')
+        waiter_task = asyncio.create_task(Gear(self).wait_change_period())
+        Gear(self).sync_set_period('test4')
         waited = None
         try:
             await asyncio.wait_for(waiter_task, 0.1)
