@@ -238,6 +238,27 @@ class TestGear(AsyncTestCase):
         await Gear(C).set_period('2')
         await waiter
 
+    async def test_wait_change_period(self):
+        waiter_task = asyncio.create_task(Gear(self).wait_change_period())
+        asyncio.create_task(Gear(self).set_period('test2'))
+        waited = None
+        try:
+            await asyncio.wait_for(waiter_task, 0.1)
+            waited = True
+        except asyncio.TimeoutError:
+            waited = False
+        self.assertIs(waited, True)
+
+        waiter_task = asyncio.create_task(Gear(self).wait_change_period())
+        Gear(self).sync_set_period('test3')
+        waited = None
+        try:
+            await asyncio.wait_for(waiter_task, 0.1)
+            waited = True
+        except asyncio.TimeoutError:
+            waited = False
+        self.assertIs(waited, True)
+
 
 if __name__ == '__main__':
     asyncUnittest.run()
