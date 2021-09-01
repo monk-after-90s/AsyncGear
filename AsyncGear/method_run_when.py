@@ -3,7 +3,7 @@ call_backs = {}
 
 def _when_ins(time_method: str, period_name: str, queue_blocking='abandon'):
     '''
-    remenber to instantiate in a coroutine
+    remember to instantiate in a coroutine
 
     :param period_name:
     :param queue_blocking: When the decorated is activated too frequently, 'non_block' means run immediately anyway; 'queue' means
