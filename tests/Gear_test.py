@@ -208,15 +208,15 @@ class TestGear(AsyncTestCase):
         self.assertLessThan(time2 - time1, 0.2)
 
     async def test_high_frequence(self):
-        Gear(self).count = 10000
+        Gear(self).count = 5000
 
         async def set():
             for i in range(Gear(self).count):
                 if Gear(self).get_present_period() == 'test2':
-                    await Gear(self).set_period('test1')
+                    await asyncio.create_task(Gear(self).set_period('test1'))
                     Gear(self).count -= 1
                 else:
-                    await Gear(self).set_period('test2')
+                    await asyncio.create_task(Gear(self).set_period('test2'))
                     Gear(self).count -= 1
 
         asyncio.create_task(set())
@@ -226,6 +226,40 @@ class TestGear(AsyncTestCase):
             test2_waiter = asyncio.create_task(Gear(self).wait_enter_period('test2'))
             await asyncio.wait([test1_waiter, test2_waiter], return_when='FIRST_COMPLETED', timeout=1)
 
+    async def test_high_frequence_bear_data(self):
+        n = 5000
+
+        async def shine():
+            for i in range(n * 3):
+                Gear(self).data = i + 1
+                if Gear(self).get_present_period() == 'test2':
+                    await asyncio.create_task(Gear(self).set_period('test1'))
+                else:
+                    await asyncio.create_task(Gear(self).set_period('test2'))
+
+        async def period_change_remainder_waiter(remainder: int):
+            nums = set()
+            while True:
+                test1_waiter = asyncio.create_task(Gear(self).wait_enter_period('test1'))
+                test2_waiter = asyncio.create_task(Gear(self).wait_enter_period('test2'))
+                await asyncio.wait([test1_waiter, test2_waiter], return_when='FIRST_COMPLETED', timeout=1)
+                new_data = Gear(self).data
+                if new_data % 3 == remainder:
+                    nums.add(new_data)
+                if new_data == 3 * n:
+                    break
+
+            return nums
+
+        two_period_remainder_waiter_1_task = asyncio.create_task(period_change_remainder_waiter(1))
+        two_period_remainder_waiter_2_task = asyncio.create_task(period_change_remainder_waiter(2))
+        two_period_remainder_waiter_3_task = asyncio.create_task(period_change_remainder_waiter(0))
+
+        asyncio.create_task(shine())
+        self.assertEqual(await two_period_remainder_waiter_1_task, set(i for i in range(1, 3 * n + 1, 3)))
+        self.assertEqual(await two_period_remainder_waiter_2_task, set(i for i in range(2, 3 * n + 1, 3)))
+        self.assertEqual(await two_period_remainder_waiter_3_task, set(i for i in range(3, 3 * n + 1, 3)))
+
     async def test_bind_obj_has_dict_property(self):
         class C:
             a = {}
@@ -234,7 +268,7 @@ class TestGear(AsyncTestCase):
         Gear(C).add_periods('2')
         self.assertEqual('1', Gear(C).get_present_period())
         waiter = asyncio.create_task(Gear(C).wait_enter_period('2'))
-        await Gear(C).set_period('2')
+        await asyncio.create_task(Gear(C).set_period('2'))
         await waiter
 
     async def test_wait_change_period(self):
