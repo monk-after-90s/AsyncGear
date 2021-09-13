@@ -21,7 +21,7 @@ import asyncio
 import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-from AsyncGear import Gear, run_when_enter, run_when_exit, run_when_inside, run_when_outside, when_enter, when_exit, when_inside, when_outside
+from AsyncGear import Gear,DataShine,run_when_enter, run_when_exit, run_when_inside, run_when_outside, when_enter, when_exit, when_inside, when_outside
 
 
 async def main():
@@ -218,6 +218,35 @@ deleting the old gears.
 Gear('Tom').add_periods('sleep', 'awaken') 
 Gear('Tom').delete()
 ```
+
+### DataShine
+DataShine is a class inherited from AsyncGear. It is designed to set a gear to bear data and notify all monitors.
+```python
+ds = DataShine()
+
+async def waiter(name: str):
+    for _ in range(3):
+        print(f'{name}:{await ds.wait_data_shine()}')
+
+asyncio.create_task(waiter('John'))
+asyncio.create_task(waiter('Tom'))
+for i in range(3):
+    await asyncio.create_task(ds.push_data(i))
+    
+ds.delete()
+    
+asyncio.get_running_loop().stop()
+```
+```shell
+John:0
+Tom:0
+John:1
+Tom:1
+John:2
+Tom:2
+```
+You'd better delete the instance when it is no more used. 
+
 ### run_when_enter
 run_when_enter is to decorate a function or coroutine function to be run when just entering the designated period of 
 the designated object gear.

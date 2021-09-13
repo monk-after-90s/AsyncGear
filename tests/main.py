@@ -9,3 +9,4 @@ import sys
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 asyncUnittest.run()
+# 测试通过不了的话就分别测试
