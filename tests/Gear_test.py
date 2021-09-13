@@ -270,7 +270,7 @@ class TestGear(AsyncTestCase):
         self.assertIs(waited, True)
 
         waiter_task = asyncio.create_task(Gear(self).wait_change_period())
-        Gear(self).sync_set_period('test3')
+        asyncio.get_running_loop().call_later(0.05, Gear(self).sync_set_period, 'test3')
         waited = None
         try:
             await asyncio.wait_for(waiter_task, 0.1)
@@ -281,7 +281,7 @@ class TestGear(AsyncTestCase):
 
         Gear(self).add_periods('test4')
         waiter_task = asyncio.create_task(Gear(self).wait_change_period())
-        Gear(self).sync_set_period('test4')
+        asyncio.get_running_loop().call_later(0.05, Gear(self).sync_set_period, 'test4')
         waited = None
         try:
             await asyncio.wait_for(waiter_task, 0.1)
@@ -289,6 +289,22 @@ class TestGear(AsyncTestCase):
         except asyncio.TimeoutError:
             waited = False
         self.assertIs(waited, True)
+
+        n = 2000
+
+        async def waiter():
+            for _ in range(n):
+                await Gear(self).wait_change_period()
+
+        waiter_task = asyncio.create_task(waiter())
+
+        for _ in range(n):
+            if Gear(self).get_present_period() != 'test2':
+                await asyncio.create_task(Gear(self).set_period('test2'))
+            else:
+                await asyncio.create_task(Gear(self).set_period('test1'))
+
+        await asyncio.wait_for(waiter_task, 5)
 
 
 if __name__ == '__main__':

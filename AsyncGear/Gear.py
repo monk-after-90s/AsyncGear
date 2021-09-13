@@ -23,7 +23,6 @@ class _Gear:
         self.assistant_tasks = []
         self.prev_period = None
         self._current_period: AsyncPeriod = None
-        self._period_change_event = asyncio.Event()
 
     def delete(self):
         '''
@@ -122,13 +121,6 @@ class _Gear:
         return self._set_period(period_name, slot_num)
 
     def _set_period(self, period_name: str, slot_num: int = 1):
-        async def flash_period_change_event():
-            self._period_change_event.set()
-            await asyncio.sleep(0)
-            self._period_change_event.clear()
-
-        asyncio.create_task(flash_period_change_event())
-
         p = self.periods[period_name]
         p.slots_num_for_true = slot_num
         p.filled_slots_num += 1
@@ -168,7 +160,12 @@ class _Gear:
 
         :return:
         '''
-        await self._period_change_event.wait()
+        if self.get_period_names():
+            await asyncio.wait(
+                [asyncio.create_task(self.wait_enter_period(period)) for period in self.get_period_names()],
+                return_when='FIRST_COMPLETED')
+        else:
+            raise RuntimeError('No periods.')
 
     async def wait_inside_period(self, period_name: str):
         '''
