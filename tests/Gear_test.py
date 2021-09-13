@@ -214,7 +214,7 @@ class TestGear(AsyncTestCase):
         self.assertLessThan(time2 - time1, 0.2)
 
     async def test_high_frequence_bear_data(self):
-        n = 2000
+        n = 1000
 
         async def shine():
             for i in range(n * 3):
@@ -290,7 +290,7 @@ class TestGear(AsyncTestCase):
             waited = False
         self.assertIs(waited, True)
 
-        n = 2000
+        n = 1000
 
         async def waiter():
             for _ in range(n):
