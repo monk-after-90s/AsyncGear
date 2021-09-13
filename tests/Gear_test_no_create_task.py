@@ -14,7 +14,7 @@ logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 
-class TestGear(AsyncTestCase):
+class TestGearNoCreateTask(AsyncTestCase):
     async def setUp(self) -> None:
         Gear(self).add_periods('test1', 'test2', 'test3')
         self.assertEqual(Gear(self).get_present_period(), 'test1')

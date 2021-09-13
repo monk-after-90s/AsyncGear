@@ -9,7 +9,7 @@ from asyncUnittest import AsyncTestCase
 from AsyncGear import Gear, when_enter, when_exit, when_inside, when_outside
 
 
-class TestInstance_run_when(AsyncTestCase):
+class TestClass_run_when(AsyncTestCase):
     async def test_when_ins_enter(self):
         class C:
             def __init__(self):
