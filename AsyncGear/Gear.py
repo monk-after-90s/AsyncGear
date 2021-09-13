@@ -23,7 +23,7 @@ class _Gear:
         self.assistant_tasks = []
         self.prev_period = None
         self._current_period: AsyncPeriod = None
-        self._period_change_event_signal_q = asyncio.Queue(30)
+        self._period_change_event = asyncio.Event()
 
     def delete(self):
         '''
@@ -122,10 +122,13 @@ class _Gear:
         return self._set_period(period_name, slot_num)
 
     def _set_period(self, period_name: str, slot_num: int = 1):
-        try:
-            self._period_change_event_signal_q.put_nowait(None)  # todo 类用例 文档
-        except asyncio.QueueFull:
-            pass
+        async def flash_period_change_event():
+            self._period_change_event.set()
+            await asyncio.sleep(0)
+            self._period_change_event.clear()
+
+        asyncio.create_task(flash_period_change_event())
+
         p = self.periods[period_name]
         p.slots_num_for_true = slot_num
         p.filled_slots_num += 1
@@ -165,8 +168,7 @@ class _Gear:
 
         :return:
         '''
-        await asyncio.create_task(self._period_change_event_signal_q.get())
-        self._period_change_event_signal_q.task_done()
+        await self._period_change_event.wait()
 
     async def wait_inside_period(self, period_name: str):
         '''
