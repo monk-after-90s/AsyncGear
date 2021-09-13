@@ -42,7 +42,8 @@ class DataShine(_Gear):
 
         :return:
         '''
-        await asyncio.wait([asyncio.create_task(self.wait_inside_period('shine')),
-                            asyncio.create_task(self.wait_inside_period('slake'))],
-                           return_when='FIRST_COMPLETED')
+        if self.get_present_period() != 'shine':
+            await asyncio.create_task(self.wait_enter_period('shine'))
+        else:
+            await asyncio.create_task(self.wait_enter_period('slake'))
         return self._data
