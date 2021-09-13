@@ -135,6 +135,11 @@ inside awaken
 outside sleep
 inside awaken
 ```
+
+### Gear(obj).wait_change_period
+
+Wait for the event that any period is set.
+
 ### Gear(obj).lock
 You could lock the gear period. If locked, the gear could no more be changed the period, or raise PermissionError. 
 Of course, you could wait the gear unlocked.
