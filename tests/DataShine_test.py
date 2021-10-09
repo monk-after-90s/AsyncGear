@@ -41,6 +41,23 @@ class TestDataShine(AsyncTestCase):
         self.assertEqual(await two_period_remainder_waiter_2_task, set(i for i in range(2, 3 * n + 1, 3)))
         self.assertEqual(await two_period_remainder_waiter_3_task, set(i for i in range(3, 3 * n + 1, 3)))
 
+    async def test_high_frequence_sync_push_data(self):
+        ds = DataShine()
+
+        data_set = set(range(50))
+        waited_data_set = set()
+
+        async def waiter():
+            while True:
+                waited_data_set.add(await ds.wait_data_shine())
+
+        waiter_task = asyncio.create_task(waiter())
+
+        for data in data_set:
+            asyncio.create_task(ds.push_data(data))
+        await asyncio.wait([waiter_task], timeout=1)
+        self.assertEqual(data_set, waited_data_set)
+
 
 if __name__ == '__main__':
     asyncUnittest.run()

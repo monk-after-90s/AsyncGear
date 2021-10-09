@@ -8,6 +8,17 @@ class DataShine(_Gear):
         super(DataShine, self).__init__(self)
         self._data = None
         self.add_periods('shine', 'slake')
+        self._q = asyncio.Queue(10)
+        self._data_scheduler_task: asyncio.Task = asyncio.create_task(self._data_scheduler())
+
+    async def _data_scheduler(self):
+        while True:
+            self._data = await self._q.get()
+            self._q.task_done()
+            if self.get_present_period() != 'shine':
+                await self.set_period('shine')
+            else:
+                await self.set_period('slake')
 
     async def push_data(self, data):
         '''
@@ -16,11 +27,7 @@ class DataShine(_Gear):
         :param data:
         :return:
         '''
-        self._data = data
-        if self.get_present_period() != 'shine':
-            await self.set_period('shine')
-        else:
-            await self.set_period('slake')
+        await asyncio.create_task(self._q.put(data))
 
     @property
     def data(self):
