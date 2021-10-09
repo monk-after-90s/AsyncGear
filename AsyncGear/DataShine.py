@@ -11,6 +11,10 @@ class DataShine(_Gear):
         self._q = asyncio.Queue(10)
         self._data_scheduler_task: asyncio.Task = asyncio.create_task(self._data_scheduler())
 
+    def delete(self):
+        self._data_scheduler_task.cancel()
+        super().delete()
+
     async def _data_scheduler(self):
         while True:
             self._data = await self._q.get()
