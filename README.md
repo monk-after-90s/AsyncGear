@@ -228,13 +228,15 @@ async def waiter(name: str):
     for _ in range(3):
         print(f'{name}:{await ds.wait_data_shine()}')
 
-asyncio.create_task(waiter('John'))
-asyncio.create_task(waiter('Tom'))
+task = asyncio.create_task(waiter('John'))
+task1 = asyncio.create_task(waiter('Tom'))
 for i in range(3):
     await asyncio.create_task(ds.push_data(i))
-    
+
+await task
+await task1
 ds.delete()
-    
+
 asyncio.get_running_loop().stop()
 ```
 ```shell
